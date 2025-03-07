@@ -104,15 +104,23 @@ class ColorCodeDetector:
     
     def perspective_transform(self):
         """透视变换校正"""
-        # TODO 查代码查到这里
+        
         # 寻找最大四边形
         max_area = 0
         best_quad = None
         for cnt in self.contours:
-            peri = cv2.arcLength(cnt, True)
+            # 对所有合法边缘进行操作：
+            peri = cv2.arcLength(cnt, True) 
+            # peri=轮廓周长==>True 代表轮廓闭合
             approx = cv2.approxPolyDP(cnt, 0.02*peri, True)
-            
+            # 对轮廓进行多边形逼近，
+            # 将轮廓近似为一个更简单的多边形；
+            # 0.02*peri 是逼近精度
+            # 返回值approx为一个多边形轮廓Numpy数组
+           
+
             if len(approx) == 4 and cv2.isContourConvex(approx):
+                # 检查“is四边形”&&“凸多边形”
                 area = cv2.contourArea(approx)
                 if area > max_area:
                     max_area = area
@@ -121,32 +129,61 @@ class ColorCodeDetector:
         if best_quad is None:
             raise ValueError("未检测到有效的三维码区域")
         
-        # 顶点排序
-        src_points = self.order_points(best_quad.reshape(4,2))
+        # 每一个approx，都是存了四个点坐标（4，1，2）
+        # 顶点排序；传入面积最大的点进行排序
         
+        src_points = self.order_points(best_quad.reshape(4,2))
+        # TODO 注意，此处返回的点的顺序可能不是预期的
+        # 实际的顺序是【右下、左下、左上、右上】
+
         # 执行透视变换
-        side_length = 300
+        side_length = 300 
         dst_points = np.array([[0,0], [side_length,0], 
                               [side_length,side_length], [0,side_length]], 
                              dtype=np.float32)
-        
+        # TODO 这里又是按照【左上、右上、右下、左下】的顺序进行排布
+        #目标正方形顶点坐标？300？
+
+        # TODO 大概这里就是bug所在吧
         M = cv2.getPerspectiveTransform(src_points, dst_points)
+        # 计算透视变换矩阵 M，将源四边形的顶点映射到目标正方形的顶点。
         warped = cv2.warpPerspective(self.image, M, (side_length, side_length))
+        # 应用透视变换，将原图像校正为 300x300 的正方形。
         
         return warped
     
     @staticmethod
     def order_points(pts):
+        """
+        为什么使用静态方法？（哦~和c差不多）
+        order_points 方法的逻辑完全依赖于传入的参数 
+        pts（四边形的四个顶点坐标），
+        而不需要访问类的属性或实例的属性。
+        静态方法的特点就是不需要 self 或 cls 参数，
+        因此非常适合这种场景。        
+        """
+
+        # 传入一个四边形的四个点坐标
         """改进的顶点排序算法"""
         # 按坐标和排序确定左上、右下
         sorted_by_sum = sorted(pts, key=lambda p: p[0]+p[1])
+        # 这个lambda表达式真的绝了……
+        # 意思是按照x+y的值进行排序
         tl, br = sorted_by_sum[0], sorted_by_sum[-1]
+        # 0 是最小的点，左上？；-1 是最大的点，右下？
+        # TODO 这一句明显反了啊
         
         # 按坐标差确定右上、左下
         remaining = [p for p in pts if not np.array_equal(p, tl) and not np.array_equal(p, br)]
         sorted_by_diff = sorted(remaining, key=lambda p: p[0]-p[1])
         tr, bl = sorted_by_diff[0], sorted_by_diff[-1]
         
+        print(np.array([tl, tr, br, bl], dtype=np.float32))# ?
+        
+        # 左上、右上、右下、左下?
+        # TODO 这一句明显反了啊
+        # 实际的顺序是【右下、左下、左上、右上】
+
         return np.array([tl, tr, br, bl], dtype=np.float32)
     
     def detect_colors(self, warped_img):
@@ -228,6 +265,8 @@ class ColorCodeDetector:
             self.preprocess_image() # 预处理
             self.detect_contours() # 轮廓检测
             warped = self.perspective_transform() # 透视变换?
+            # TODO 透视矫正有点顺序问题，明天梳理一下
+            # TODO 验证到这一行
             color_matrix = self.detect_colors(warped) # 颜色检测
             self.visualize_detection(warped) # 可视化检测结果
             return {
