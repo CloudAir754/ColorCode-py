@@ -1,4 +1,4 @@
-# test05
+# tset06
 import cv2
 import numpy as np
 
@@ -59,88 +59,57 @@ class ColorCodeDetector:
         
         return closed  # 返回处理后的二值图像
 
-    # 透视变换
-    def _warp_perspective(self, contour):
-        """执行透视变换"""
-        # 将轮廓点重新排列为 4x2 数组
-        pts = contour.reshape(4, 2)
-        rect = np.zeros((4, 2), dtype=np.float32)
-        
-        # 通过和与差排序
-        s = pts.sum(axis=1)
-        rect[0] = pts[np.argmin(s)]  # 左上
-        rect[2] = pts[np.argmax(s)]  # 右下
-        
-        d = np.diff(pts, axis=1)
-        rect[1] = pts[np.argmin(d)]  # 右上
-        rect[3] = pts[np.argmax(d)]  # 左下
-
-        # 计算目标尺寸
-        (tl, tr, br, bl) = rect
-        width = max(np.linalg.norm(tr - tl), np.linalg.norm(br - bl))
-        height = max(np.linalg.norm(bl - tl), np.linalg.norm(br - tr))
-        
-        # 目标点
-        dst = np.array([
-            [0, 0],
-            [width-1, 0],
-            [width-1, height-1],
-            [0, height-1]], dtype=np.float32)
-
-        # 计算透视变换矩阵
-        M = cv2.getPerspectiveTransform(rect, dst)
-        # 执行透视变换
-        warped = cv2.warpPerspective(self.orig, M, (int(width), int(height)))
-        return warped, M, rect  # 返回变换后的图像、变换矩阵和原始四边形点
-
     # 颜色识别
-    def _detect_colors(self, warped, M, rect):
+    def _detect_colors(self, img):
         """在3x3网格中检测颜色"""
-        h, w = warped.shape[:2]  # 获取图像的高度和宽度
+        h, w = img.shape[:2]  # 获取图像的高度和宽度
         cell_size = min(h, w) // 3  # 计算每个单元格的大小
         colors = []  # 存储检测到的颜色
         
         # 创建副本用于绘制注释
-        annotated_image = warped.copy()
+        annotated_image = img.copy()
         
         for row in range(3):
             for col in range(3):
-                # 计算单元格坐标在变换后的图像中
+                # 计算单元格坐标
                 y1 = row * cell_size + cell_size//4
                 y2 = y1 + cell_size//2
                 x1 = col * cell_size + cell_size//4
                 x2 = x1 + cell_size//2
                 
+                # 提取单元格区域
+                cell = img[y1:y2, x1:x2]
+                
                 # 获取单元格中心点
                 center_x = (x1 + x2) // 2
                 center_y = (y1 + y2) // 2
                 
-                # 将中心点映射回原始图像
-                point = np.array([[center_x, center_y]], dtype=np.float32)
-                point = cv2.perspectiveTransform(point[None, :, :], np.linalg.inv(M))
-                orig_x, orig_y = int(point[0][0][0]), int(point[0][0][1])
-                
-                # 从原始图像中提取颜色
-                color = self._classify_color(self.orig[orig_y, orig_x])
+                # 分类颜色
+                color = self._classify_color(cell)  # 返回对应区域的颜色
                 colors.append(color)
                 
-                # 在变换后的图像上标注颜色
-                cv2.putText(annotated_image, color, (center_x - 20, center_y), 
+                # 在图像上标注颜色
+                cv2.putText(annotated_image, str(color), (center_x - 20, center_y), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
         # 格式化为3x3矩阵
         return [colors[i*3:(i+1)*3] for i in range(3)], annotated_image
 
-    def _classify_color(self, bgr):
+    def _classify_color(self, cell):
         """根据BGR值分类颜色"""
-        b, g, r = bgr
+        # 计算单元格的平均颜色
+        mean_color = np.mean(cell, axis=(0,1))
+        b, g, r = mean_color
+        
         # 简单的颜色分类
         if r > 200 and g < 50 and b < 50: return 'Red'  # 红色
         if g > 200 and r < 50 and b < 50: return 'Green'  # 绿色
         if b > 200 and r < 50 and g < 50: return 'Blue'  # 蓝色
         if r > 200 and g > 200 and b > 200: return 'White'  # 白色
         if r < 50 and g < 50 and b < 50: return 'Black'  # 黑色
-        return 'Unknown'  # 未知颜色
+        
+        # 如果颜色未知，返回RGB值
+        return f"({int(r)}, {int(g)}, {int(b)})"
 
     # 主流程
     def analyze(self):
@@ -172,13 +141,9 @@ class ColorCodeDetector:
             # 选择最大轮廓
             largest = max(candidates, key=cv2.contourArea)  # 选择面积最大的轮廓
             
-            # 步骤3: 透视变换
-            warped, M, rect = self._warp_perspective(largest)  # 执行透视变换
-            self._add_step(warped, "6. Warped")  # 添加变换后的图像到处理步骤
-            
-            # 步骤4: 颜色检测
-            color_matrix, annotated_image = self._detect_colors(warped, M, rect)  # 检测颜色
-            self._add_step(annotated_image, "7. Annotated Colors")  # 添加标注图像到处理步骤
+            # 步骤3: 颜色检测
+            color_matrix, annotated_image = self._detect_colors(self.orig)  # 检测颜色
+            self._add_step(annotated_image, "6. Annotated Colors")  # 添加标注图像到处理步骤
             
             # 显示每个处理步骤
             for i, step in enumerate(self.process):
@@ -187,7 +152,6 @@ class ColorCodeDetector:
             return {
                 'status': 'success',  # 返回成功状态
                 'colors': color_matrix,  # 返回颜色矩阵
-                'warped': warped,  # 返回变换后的图像
                 'annotated': annotated_image  # 返回标注图像
             }
             
@@ -216,7 +180,6 @@ if __name__ == "__main__":
         print("Color Matrix:")
         for row in result['colors']:
             print(row)  # 打印颜色矩阵
-        cv2.imshow('Warped Output', result['warped'])  # 显示变换后的图像
         cv2.imshow('Annotated Colors', result['annotated'])  # 显示标注图像
     
     cv2.waitKey(0)  # 等待用户按键
