@@ -203,7 +203,7 @@ class ColorCodeDetector:
             }
 
 if __name__ == "__main__":
-    detector = ColorCodeDetector('Pic2-2.jpg')
+    detector = ColorCodeDetector('./Sample/Pic2-2.jpg')
     result = detector.analyze()
     
     if result['status'] == 'success':

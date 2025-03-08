@@ -1,11 +1,10 @@
-# test03 代码
-
+# test4
 import cv2
 import numpy as np
 
 class ColorCodeDetector:
     def __init__(self, image_path):
-        # 初始化类，读取图像
+        # 读取图像
         self.orig = cv2.imread(image_path)
         if self.orig is None:
             raise ValueError("Image load failed")  # 如果图像加载失败，抛出异常
@@ -19,14 +18,14 @@ class ColorCodeDetector:
 
     # 可视化控制
     def _add_step(self, img, title):
-        """统一处理图像为三通道后再保存"""
-        # 转换单通道图像为三通道
+        """将处理步骤的图像保存到列表中"""
+        # 如果图像是单通道，转换为三通道
         if len(img.shape) == 2:
             display = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         else:
             display = img.copy()
         
-        # 调整尺寸并添加标题
+        # 调整图像大小并添加标题
         display = cv2.resize(display, (400, 400))
         cv2.putText(display, title, (10,30), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
@@ -63,9 +62,9 @@ class ColorCodeDetector:
     # 透视变换
     def _warp_perspective(self, contour):
         """执行透视变换"""
-        # 重新排列点：左上，右上，右下，左下
-        pts = contour.reshape(4,2)
-        rect = np.zeros((4,2), dtype=np.float32)
+        # 将轮廓点重新排列为 4x2 数组
+        pts = contour.reshape(4, 2)
+        rect = np.zeros((4, 2), dtype=np.float32)
         
         # 通过和与差排序
         s = pts.sum(axis=1)
@@ -88,9 +87,10 @@ class ColorCodeDetector:
             [width-1, height-1],
             [0, height-1]], dtype=np.float32)
 
-        # 透视变换
-        M = cv2.getPerspectiveTransform(rect, dst)  # 计算透视变换矩阵
-        warped = cv2.warpPerspective(self.orig, M, (int(width), int(height)))  # 执行透视变换
+        # 计算透视变换矩阵
+        M = cv2.getPerspectiveTransform(rect, dst)
+        # 执行透视变换
+        warped = cv2.warpPerspective(self.orig, M, (int(width), int(height)))
         return warped  # 返回变换后的图像
 
     # 颜色识别
@@ -99,6 +99,9 @@ class ColorCodeDetector:
         h, w = warped.shape[:2]  # 获取图像的高度和宽度
         cell_size = min(h, w) // 3  # 计算每个单元格的大小
         colors = []  # 存储检测到的颜色
+        
+        # 创建副本用于绘制注释
+        annotated_image = warped.copy()
         
         for row in range(3):
             for col in range(3):
@@ -116,10 +119,17 @@ class ColorCodeDetector:
                 mean_hsv = np.mean(hsv, axis=(0,1))  # 计算HSV均值
                 
                 # 分类颜色
-                colors.append(self._classify_color(mean_hsv))
+                color = self._classify_color(mean_hsv)  # 返回对应区域的颜色
+                colors.append(color)
+                
+                # 在图像上标注颜色
+                center_x = (x1 + x2) // 2
+                center_y = (y1 + y2) // 2
+                cv2.putText(annotated_image, color, (center_x - 20, center_y), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
         # 格式化为3x3矩阵
-        return [colors[i*3:(i+1)*3] for i in range(3)]
+        return [colors[i*3:(i+1)*3] for i in range(3)], annotated_image
 
     def _classify_color(self, hsv):
         """根据HSV值分类颜色"""
@@ -165,22 +175,21 @@ class ColorCodeDetector:
             
             # 步骤3: 透视变换
             warped = self._warp_perspective(largest)  # 执行透视变换
-            
             self._add_step(warped, "6. Warped")  # 添加变换后的图像到处理步骤
             
             # 步骤4: 颜色检测
-            #color_matrix = self._detect_colors(warped)  # 检测颜色
-            color_matrix = self._detect_colors(self.orig)  # 检测颜色
+            color_matrix, annotated_image = self._detect_colors(warped)  # 检测颜色
+            self._add_step(annotated_image, "7. Annotated Colors")  # 添加标注图像到处理步骤
             
-            # 最终可视化
-            result = np.hstack(self.process[:6] + [self.process[-1]])  # 拼接处理步骤图像
-            # 上一行也有小问题问题
-            cv2.imshow('Processing Steps', result)  # 显示处理步骤
+            # 显示每个处理步骤
+            for i, step in enumerate(self.process):
+                cv2.imshow(f'Step {i+1}', step)
             
             return {
                 'status': 'success',  # 返回成功状态
                 'colors': color_matrix,  # 返回颜色矩阵
-                'warped': warped  # 返回变换后的图像
+                'warped': warped,  # 返回变换后的图像
+                'annotated': annotated_image  # 返回标注图像
             }
             
         except Exception as e:
@@ -190,13 +199,9 @@ class ColorCodeDetector:
                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,255), 2)
             self.process.append(err_img)  # 添加错误图像到处理步骤
             
-            # 显示处理步骤时统一维度
-            steps = [cv2.cvtColor(p, cv2.COLOR_GRAY2BGR) if len(p.shape)==2 else p 
-                    for p in self.process[:5]]
-            steps.append(self.process[-1])
-            
-            result = np.hstack(steps)  # 拼接处理步骤图像
-            cv2.imshow('Processing Steps', result)  # 显示处理步骤
+            # 显示每个处理步骤
+            for i, step in enumerate(self.process):
+                cv2.imshow(f'Step {i+1}', step)
             
             return {
                 'status': 'error',  # 返回失败状态
@@ -213,6 +218,7 @@ if __name__ == "__main__":
         for row in result['colors']:
             print(row)  # 打印颜色矩阵
         cv2.imshow('Warped Output', result['warped'])  # 显示变换后的图像
+        cv2.imshow('Annotated Colors', result['annotated'])  # 显示标注图像
     
     cv2.waitKey(0)  # 等待用户按键
     cv2.destroyAllWindows()  # 关闭所有窗口
