@@ -1,3 +1,6 @@
+# 边缘检测有大问题
+# 功能缺少！
+
 import cv2
 import numpy as np
 
@@ -26,6 +29,7 @@ class VisualCodeDetector:
         """带可视化的预处理流程"""
         # 调整尺寸
         h, w = self.image.shape[:2]
+        # TODO 这个缩放比例的逻辑不对啊，整体算的时候，应该是按照原图尺寸去匹配边缘
         scale = self.target_size / max(h, w)
         self.image = cv2.resize(self.image, None, fx=scale, fy=scale)
         self.visualize(self.image, "0.原始图像")
@@ -128,7 +132,7 @@ class VisualCodeDetector:
 
 if __name__ == "__main__":
     try:
-        detector = VisualCodeDetector("Pic2-2.jpg")
+        detector = VisualCodeDetector("./Sample/Pic2-2.jpg")
         result = detector.analyze()
         print(result)
         cv2.waitKey(0)

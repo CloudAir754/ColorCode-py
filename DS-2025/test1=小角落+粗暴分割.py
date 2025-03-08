@@ -144,7 +144,6 @@ class ColorCodeDetector:
         # TODO 这里又是按照【左上、右上、右下、左下】的顺序进行排布
         #目标正方形顶点坐标？300？
 
-        # TODO 大概这里就是bug所在吧
         M = cv2.getPerspectiveTransform(src_points, dst_points)
         # 计算透视变换矩阵 M，将源四边形的顶点映射到目标正方形的顶点。
         warped = cv2.warpPerspective(self.image, M, (side_length, side_length))
@@ -286,7 +285,7 @@ class ColorCodeDetector:
             self.preprocess_image() # 预处理
             self.detect_contours() # 轮廓检测
             warped = self.perspective_transform() # 透视变换?
-            # TODO 透视矫正有点顺序问题，明天梳理一下
+            # TODO 透视矫正有点顺序问题
             # 矫正完成后的图片就已经只能看到小角落了()
             
             color_matrix = self.detect_colors(warped) # 颜色检测
