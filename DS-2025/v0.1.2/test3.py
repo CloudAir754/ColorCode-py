@@ -94,9 +94,6 @@ class ColorCodeDetector:
         cell_size = min(h, w) // 3
         colors = []
         
-        # Create a copy of the warped image to draw annotations
-        annotated_image = warped.copy()
-        
         for row in range(3):
             for col in range(3):
                 # Calculate cell coordinates
@@ -113,17 +110,10 @@ class ColorCodeDetector:
                 mean_hsv = np.mean(hsv, axis=(0,1))
                 
                 # Classify color
-                color = self._classify_color(mean_hsv) # 这里是返回对应区域的颜色
-                colors.append(color)
-                
-                # Annotate the color on the image
-                center_x = (x1 + x2) // 2
-                center_y = (y1 + y2) // 2
-                cv2.putText(annotated_image, color, (center_x - 20, center_y), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                colors.append(self._classify_color(mean_hsv))
         
         # Format as 3x3 matrix
-        return [colors[i*3:(i+1)*3] for i in range(3)], annotated_image
+        return [colors[i*3:(i+1)*3] for i in range(3)]
 
     def _classify_color(self, hsv):
         """Classify color based on HSV values"""
@@ -172,18 +162,16 @@ class ColorCodeDetector:
             self._add_step(warped, "6. Warped")
             
             # Step 4: Color detection
-            color_matrix, annotated_image = self._detect_colors(warped)
-            self._add_step(annotated_image, "7. Annotated Colors")
+            color_matrix = self._detect_colors(warped)
             
-            # Show each processing step in separate windows
-            for i, step in enumerate(self.process):
-                cv2.imshow(f'Step {i+1}', step)
+            # Final visualization
+            result = np.hstack(self.process[:6] + [self.process[-1]])
+            cv2.imshow('Processing Steps', result)
             
             return {
                 'status': 'success',
                 'colors': color_matrix,
-                'warped': warped,
-                'annotated': annotated_image
+                'warped': warped
             }
             
         except Exception as e:
@@ -193,9 +181,13 @@ class ColorCodeDetector:
                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,255), 2)
             self.process.append(err_img)
             
-            # Show each processing step in separate windows
-            for i, step in enumerate(self.process):
-                cv2.imshow(f'Step {i+1}', step)
+            # 显示处理步骤时统一维度
+            steps = [cv2.cvtColor(p, cv2.COLOR_GRAY2BGR) if len(p.shape)==2 else p 
+                    for p in self.process[:5]]
+            steps.append(self.process[-1])
+            
+            result = np.hstack(steps)
+            cv2.imshow('Processing Steps', result)
             
             return {
                 'status': 'error',
@@ -203,7 +195,7 @@ class ColorCodeDetector:
             }
 
 if __name__ == "__main__":
-    detector = ColorCodeDetector('Pic2-2.jpg')
+    detector = ColorCodeDetector('./Sample/Pic2-2.jpg')
     result = detector.analyze()
     
     if result['status'] == 'success':
@@ -211,7 +203,6 @@ if __name__ == "__main__":
         for row in result['colors']:
             print(row)
         cv2.imshow('Warped Output', result['warped'])
-        cv2.imshow('Annotated Colors', result['annotated'])
     
     cv2.waitKey(0)
     cv2.destroyAllWindows()

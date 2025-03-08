@@ -85,10 +85,10 @@ class ColorCodeDetector:
         # Perspective transform
         M = cv2.getPerspectiveTransform(rect, dst)
         warped = cv2.warpPerspective(self.orig, M, (int(width), int(height)))
-        return warped, M, rect
+        return warped
 
     # Color recognition
-    def _detect_colors(self, warped, M, rect):
+    def _detect_colors(self, warped):
         """Detect colors in 3x3 grid"""
         h, w = warped.shape[:2]
         cell_size = min(h, w) // 3
@@ -99,41 +99,42 @@ class ColorCodeDetector:
         
         for row in range(3):
             for col in range(3):
-                # Calculate cell coordinates in warped image
+                # Calculate cell coordinates
                 y1 = row * cell_size + cell_size//4
                 y2 = y1 + cell_size//2
                 x1 = col * cell_size + cell_size//4
                 x2 = x1 + cell_size//2
                 
-                # Get the center of the cell
-                center_x = (x1 + x2) // 2
-                center_y = (y1 + y2) // 2
+                # Extract cell region
+                cell = warped[y1:y2, x1:x2]
                 
-                # Map the center point back to the original image
-                point = np.array([[center_x, center_y]], dtype=np.float32)
-                point = cv2.perspectiveTransform(point[None, :, :], np.linalg.inv(M))
-                orig_x, orig_y = int(point[0][0][0]), int(point[0][0][1])
+                # Convert to HSV
+                hsv = cv2.cvtColor(cell, cv2.COLOR_BGR2HSV)
+                mean_hsv = np.mean(hsv, axis=(0,1))
                 
-                # Extract color from the original image
-                color = self._classify_color(self.orig[orig_y, orig_x])
+                # Classify color
+                color = self._classify_color(mean_hsv) # 这里是返回对应区域的颜色
                 colors.append(color)
                 
-                # Annotate the color on the warped image
+                # Annotate the color on the image
+                center_x = (x1 + x2) // 2
+                center_y = (y1 + y2) // 2
                 cv2.putText(annotated_image, color, (center_x - 20, center_y), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
         # Format as 3x3 matrix
         return [colors[i*3:(i+1)*3] for i in range(3)], annotated_image
 
-    def _classify_color(self, bgr):
-        """Classify color based on BGR values"""
-        b, g, r = bgr
-        # Simple color classification based on BGR values
-        if r > 200 and g < 50 and b < 50: return 'Red'
-        if g > 200 and r < 50 and b < 50: return 'Green'
-        if b > 200 and r < 50 and g < 50: return 'Blue'
-        if r > 200 and g > 200 and b > 200: return 'White'
-        if r < 50 and g < 50 and b < 50: return 'Black'
+    def _classify_color(self, hsv):
+        """Classify color based on HSV values"""
+        hue, sat, val = hsv
+        hue *= 2  # Convert to 0-360 range
+        
+        if val < 50: return 'Black'
+        if sat < 50 and val > 200: return 'White'
+        if (0 <= hue <= 15) or (165 <= hue <= 180): return 'Red'
+        if 40 <= hue <= 80: return 'Green'
+        if 100 <= hue <= 140: return 'Blue'
         return 'Unknown'
 
     # Main process
@@ -167,11 +168,11 @@ class ColorCodeDetector:
             largest = max(candidates, key=cv2.contourArea)
             
             # Step 3: Perspective transform
-            warped, M, rect = self._warp_perspective(largest)
+            warped = self._warp_perspective(largest)
             self._add_step(warped, "6. Warped")
             
             # Step 4: Color detection
-            color_matrix, annotated_image = self._detect_colors(warped, M, rect)
+            color_matrix, annotated_image = self._detect_colors(warped)
             self._add_step(annotated_image, "7. Annotated Colors")
             
             # Show each processing step in separate windows
@@ -202,7 +203,7 @@ class ColorCodeDetector:
             }
 
 if __name__ == "__main__":
-    detector = ColorCodeDetector('Pic2-2.jpg')
+    detector = ColorCodeDetector('./Sample/Pic2-2.jpg')
     result = detector.analyze()
     
     if result['status'] == 'success':
