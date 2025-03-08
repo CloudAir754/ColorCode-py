@@ -1,4 +1,4 @@
-# tset06
+# test 07
 import cv2
 import numpy as np
 
@@ -91,6 +91,9 @@ class ColorCodeDetector:
                 # 在图像上标注颜色
                 cv2.putText(annotated_image, str(color), (center_x - 20, center_y), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                
+                # 在颜色检测区域绘制矩形
+                cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
         
         # 格式化为3x3矩阵
         return [colors[i*3:(i+1)*3] for i in range(3)], annotated_image
@@ -173,7 +176,7 @@ class ColorCodeDetector:
 
 if __name__ == "__main__":
     # 创建检测器实例并分析图像
-    detector = ColorCodeDetector('./Sample/Pic2-2.jpg')
+    detector = ColorCodeDetector('./Sample/Pic2.jpg')
     result = detector.analyze()
     
     if result['status'] == 'success':
