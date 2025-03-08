@@ -188,12 +188,21 @@ class ColorCodeDetector:
     
     def detect_colors(self, warped_img):
         """颜色检测主逻辑"""
+        
+        # cv2.imshow("warped_img",warped_img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         # 网格分割
         cell_size = warped_img.shape[0] // 3
+        # 这个网格分割也是有问题的
+        # 逻辑问题；即，不应当按照图片3*3分割
+        #   而是按照划到的边缘块进行分割
+        
         color_codes = []
         
         for row in range(3):
             for col in range(3):
+                # 按照长宽比划为9块
                 # 计算单元格区域
                 x1 = col * cell_size + cell_size//4
                 y1 = row * cell_size + cell_size//4
@@ -203,9 +212,21 @@ class ColorCodeDetector:
                 cell = warped_img[y1:y2, x1:x2]
                 
                 # 颜色分析
+                """"
+                HSV 将颜色信息分解为三个独立的分量：
+                    ​H (Hue, 色调)：表示颜色的类型（如红色、绿色、蓝色等）。
+                    ​S (Saturation, 饱和度)：表示颜色的纯度（饱和度越高，颜色越鲜艳）。
+                    ​V (Value, 亮度)：表示颜色的亮度。
+                
+                """
                 hsv = cv2.cvtColor(cell, cv2.COLOR_BGR2HSV)
+                # 将图像从bgr颜色空间切换到hsv颜色空间
                 avg_hsv = np.mean(hsv, axis=(0,1))
+                # 计算 HSV 图像的平均值
+                # 指定在高度（axis=0）和宽度（axis=1）两个维度上计算平均值。
+
                 code = self.color_classification(avg_hsv)
+                # 映射
                 color_codes.append(code)
                 
         # 按行列顺序重组
@@ -229,7 +250,7 @@ class ColorCodeDetector:
         if 45 <= hue <= 75:
             return '10'  # 绿色
         
-        if 90 <= hue <= 130:
+        if 90 <= hue <= 130: 
             return '11'  # 蓝色
         
         return '00'  # 默认返回白色
@@ -266,7 +287,8 @@ class ColorCodeDetector:
             self.detect_contours() # 轮廓检测
             warped = self.perspective_transform() # 透视变换?
             # TODO 透视矫正有点顺序问题，明天梳理一下
-            # TODO 验证到这一行
+            # 矫正完成后的图片就已经只能看到小角落了()
+            
             color_matrix = self.detect_colors(warped) # 颜色检测
             self.visualize_detection(warped) # 可视化检测结果
             return {
