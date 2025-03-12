@@ -1,16 +1,8 @@
-# 基于Test01 进行修改
-# 已处理的内容
-# 1. 删去矫正模块
-# 2. 提取超参数
+# 待处理的内容
 # 【未完成】 3. `morphologyEx`函数的闭合问题
-# 4. 颜色管理过程，使用边缘处理结果；并按照顺序依次读取；
-#       原test1中`perspective_transform`中使用外接四边形+排序的方法可以借鉴
-# 5. 改进HSV色彩显示体系
-# 【未完成】6. 【功能从0增加】拉伸信息检测
-# 【未完成】 7. 尝试引入直方图均衡化=test02
-# 8. 在图片上标注颜色（test6）
-# 9. 将所有中途过程显示进行统一化
-# 【未完成】 10. 增加指数映射，增加对比度
+# 6. 拉伸信息检测
+# 7. 尝试引入直方图均衡化=test02(放弃)
+# 10. 增加指数映射，增加对比度
 
 import cv2
 import numpy as np
@@ -34,6 +26,7 @@ class ColorCodeDetector:
         self.contours_ordered = [] # 排序后的内接四边形
         self.color_blocks = [] # 颜色快
         self.final_codes = [] # 颜色代码
+        self.radio_stretch = 1.0 # 拉伸参数
 
         # 控制开关
         self.show_steps = True  # 控制是否显示处理步骤
@@ -51,6 +44,9 @@ class ColorCodeDetector:
         self.HPt1Canny =50 #  Canny阈值1，低于此值边缘被忽略，默认50
         self.HPt2Canny =150 #Canny阈值2，高于此值边缘强边缘，默认150
         self.HPkernel=9 #形态学增强（闭运算核大小）
+        self.HP_ts_radio= 0.2 # 拉伸突变容忍参数
+        self.HP_gamma = 0.7 # 指数映射比率
+        self.HPbrightness_threshold = 120 # 亮度通道阈值，高于此值则加亮度
 
 
     def visualize_process(self,title_showd,img_showed):
@@ -69,8 +65,27 @@ class ColorCodeDetector:
         self.Sized_img = img
         # interpolation=cv2.INTER_AREA 区域插值，适合缩小图像
         
+        # 图像增强
+        # 转换为 HSV 颜色空间，提取亮度通道（V 通道）
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        v_channel = hsv[:, :, 2]  # 提取 V 通道
         
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 对亮度较高的像素进行指数映射
+        v_normalized = v_channel / 255.0  # 归一化到 [0, 1]
+        brightness_threshold = self.HPbrightness_threshold  # 最大的一个分量
+        gamma = self.HP_gamma # <0 就是放大
+        mask = v_channel > brightness_threshold  # 创建高亮区域的掩码
+        v_enhanced = np.where(mask, np.power(v_normalized, gamma) * 255, v_channel)  # 仅增强高亮区域
+        v_enhanced = v_enhanced.astype(np.uint8)  # 恢复像素范围
+        
+        # 将增强后的 V 通道合并回 HSV 图像
+        hsv[:, :, 2] = v_enhanced
+        img_enhanced = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)  # 转换回 BGR 颜色空间
+
+        gray = cv2.cvtColor(img_enhanced, cv2.COLOR_BGR2GRAY)
+
+        
+        # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         blurred = cv2.GaussianBlur(gray, 
                                    (self.HPsizeGaussian,self.HPsizeGaussian), 0) # 高斯模糊
@@ -79,6 +94,7 @@ class ColorCodeDetector:
                           self.HPt1Canny, self.HPt2Canny) # Canny边缘检测
         
         self.visualize_process("Standard Size Pic",img) # 标准尺寸图片
+        self.visualize_process("Gamma Func.",img_enhanced) # 灰度图像
         self.visualize_process("Gray Func.",gray) # 灰度图像
         self.visualize_process("GaussianBlur Func.",blurred) #高斯模糊图像
         self.visualize_process("Canny Edge Func.",edged)# Canny 边缘检测
@@ -161,6 +177,7 @@ class ColorCodeDetector:
         
         print("有效内接四边形个数：")
         print(len(quadrilaterals))
+        # cv2.waitKey()
         
         if len(quadrilaterals)!=9:
             print("有效内接四边形不为9！！请检查超参数配置或检查图片")
@@ -173,7 +190,7 @@ class ColorCodeDetector:
 
         self.quadrilaterals = self.sort_quad(quadrilaterals)
         
-        self.visualization_detect_contours()# 可视化找色块
+        
 
         return quadrilaterals
     
@@ -428,7 +445,7 @@ class ColorCodeDetector:
                 color_detects.append(classify_color_text)
 
                 # 打印 HSV 平均值到终端
-                print(f"Quad at ({x}, {y}, {w}, {h}) - HSV Mean: H={h_mean}, S={s_mean}, V={v_mean}")
+                # print(f"Quad at ({x}, {y}, {w}, {h}) - HSV Mean: H={h_mean}, S={s_mean}, V={v_mean}")
 
                 # 在取色区域附近分行显示 HSV 值
                 text_position = (center_x, center_y - 30)  # 第一行文本位置
@@ -453,7 +470,7 @@ class ColorCodeDetector:
                 hex_color = "#{:02X}{:02X}{:02X}".format(r_mean, g_mean, b_mean)
 
                 # 打印 RGB 平均值到终端
-                print(f"Quad at ({x}, {y}, {w}, {h}) - RGB Mean: B={b_mean}, G={g_mean}, R={r_mean}, Hex: {hex_color}")
+                # print(f"Quad at ({x}, {y}, {w}, {h}) - RGB Mean: B={b_mean}, G={g_mean}, R={r_mean}, Hex: {hex_color}")
 
                 # 在取色区域附近贴十六进制颜色值
                 text_position = (center_x, center_y - 10)  # 在取色区域上方显示文本
@@ -537,7 +554,34 @@ class ColorCodeDetector:
             else:
                 return "未知颜色"
         
-
+    def detect_stretch_ratio(self):
+        """检测拉伸比率，并检查波动是否过大。"""
+        if not self.contours_ordered:
+            raise ValueError("没有检测到有效的四边形，无法计算拉伸比率。")
+        
+        ratios = []
+        
+        # 计算每个四边形的长宽比
+        for quad in self.contours_ordered:
+            # 计算四边形的宽度和高度
+            width = np.linalg.norm(quad[0] - quad[1])  # 左上到右上的距离
+            height = np.linalg.norm(quad[1] - quad[2])  # 右上到右下的距离
+            
+            # 计算长宽比 x/y
+            ratio = width / height
+            ratios.append(ratio)
+        
+        # 计算平均长宽比
+        mean_ratio = np.mean(ratios)
+        
+        # 检查每个比率与均值的差异
+        for i, ratio in enumerate(ratios):
+            deviation = abs(ratio - mean_ratio) / mean_ratio
+            if deviation > self.HP_ts_radio:
+                raise ValueError(f"第 {i+1} 个四边形的拉伸比率 {ratio:.2f} 与均值 {mean_ratio:.2f} 的差异超过阈值 {self.HP_ts_radio*100:.0f}%。")
+        
+        self.radio_stretch = mean_ratio
+        return mean_ratio
 
 
 
@@ -553,16 +597,22 @@ class ColorCodeDetector:
             
             self.preprocess_image() # 预处理
             self.detect_contours() # 轮廓检测
+            radio_stretch = self.detect_stretch_ratio() # 检测拉伸比率
+            print(f"平均拉伸比率: {radio_stretch:.2f}")
             
             self.detect_colors() # 颜色检测
+            
 
             color_matrix = self.final_codes
+
+            self.visualization_detect_contours()# 可视化找色块
             
             cv2.waitKey()
             cv2.destroyAllWindows()
 
             return {
                 "color_matrix": color_matrix,
+                "stretch_ratio": radio_stretch,
                 "status": "success"
             }
         except Exception as e:
