@@ -11,6 +11,7 @@
 - ` pip install opencv-python`
 - `pip install numpy`
 - ` pip install scikit-learn`
+- `pip install requests`
 # 需要的功能
 1. 读取照片
 2. 识别图片的9个色块颜色
