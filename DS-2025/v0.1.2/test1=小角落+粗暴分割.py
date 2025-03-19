@@ -1,5 +1,6 @@
 # 这个程序识别会导致只看一个小角落
 # 以及机械性的分整张图为9块
+# 所有的TODO替换为to1do
 import cv2
 import numpy as np
 from sklearn.cluster import KMeans
@@ -43,7 +44,7 @@ class ColorCodeDetector:
 
         # 形态学增强：闭运算以填充边缘检测后的孔洞
         # 原来的核为5*5，改为9*9是为了让部分残缺的方框补全
-        # TODO 后期代码，若有问题，检查这里是否闭合
+        # TO1DO 后期代码，若有问题，检查这里是否闭合
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9,9))
         closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
         
@@ -133,7 +134,7 @@ class ColorCodeDetector:
         # 顶点排序；传入面积最大的点进行排序
         
         src_points = self.order_points(best_quad.reshape(4,2))
-        # TODO 注意，此处返回的点的顺序可能不是预期的
+        # TO1DO 注意，此处返回的点的顺序可能不是预期的
         # 实际的顺序是【右下、左下、左上、右上】
 
         # 执行透视变换
@@ -141,7 +142,7 @@ class ColorCodeDetector:
         dst_points = np.array([[0,0], [side_length,0], 
                               [side_length,side_length], [0,side_length]], 
                              dtype=np.float32)
-        # TODO 这里又是按照【左上、右上、右下、左下】的顺序进行排布
+        # TO1DO 这里又是按照【左上、右上、右下、左下】的顺序进行排布
         #目标正方形顶点坐标？300？
 
         M = cv2.getPerspectiveTransform(src_points, dst_points)
@@ -170,7 +171,7 @@ class ColorCodeDetector:
         # 意思是按照x+y的值进行排序
         tl, br = sorted_by_sum[0], sorted_by_sum[-1]
         # 0 是最小的点，左上？；-1 是最大的点，右下？
-        # TODO 这一句明显反了啊
+        # TO1DO 这一句明显反了啊
         
         # 按坐标差确定右上、左下
         remaining = [p for p in pts if not np.array_equal(p, tl) and not np.array_equal(p, br)]
@@ -180,7 +181,7 @@ class ColorCodeDetector:
         print(np.array([tl, tr, br, bl], dtype=np.float32))# ?
         
         # 左上、右上、右下、左下?
-        # TODO 这一句明显反了啊
+        # TO1DO 这一句明显反了啊
         # 实际的顺序是【右下、左下、左上、右上】
 
         return np.array([tl, tr, br, bl], dtype=np.float32)
@@ -285,7 +286,7 @@ class ColorCodeDetector:
             self.preprocess_image() # 预处理
             self.detect_contours() # 轮廓检测
             warped = self.perspective_transform() # 透视变换?
-            # TODO 透视矫正有点顺序问题
+            # TO1DO 透视矫正有点顺序问题
             # 矫正完成后的图片就已经只能看到小角落了()
             
             color_matrix = self.detect_colors(warped) # 颜色检测

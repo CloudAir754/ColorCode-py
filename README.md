@@ -11,6 +11,7 @@
 - ` pip install opencv-python`
 - `pip install numpy`
 - ` pip install scikit-learn`
+- `pip install requests`
 # 需要的功能
 1. 读取照片
 2. 识别图片的9个色块颜色
@@ -40,3 +41,11 @@
 3. DeepSeek v3/R1 腾讯元宝网页端
 
 为表达对DeepSeek“源神”的敬意，本项目使用MIT许可证开源
+
+
+# vscode快捷键
+- 折叠 ctrl+k+0
+- 打开 ctrl+k+j
+- ctrl+K ctrl+[ 折叠本级以及包含的多有节点
+- ctrl+K ctrl+] 取消折叠本级以及包含的多有节点
+- ctrl+K ctrl+L折叠本级
