@@ -36,7 +36,7 @@ class ColorCodeDetector:
         # 参数配置
         self.target_size = 320       # 标准处理尺寸 320               
         self.min_contour_area = 50   # 最小轮廓面积 50
-        self.min_screen_coef =  12# 最小有效轮廓占总图像的1/x 8 #TODO
+        self.min_screen_coef =  12# 最小有效轮廓占总图像的1/x 8 
         self.max_screen_coef =  3# 最小有效轮廓占总图像的1/x 3
 
         # 超参数
@@ -44,7 +44,7 @@ class ColorCodeDetector:
         self.HPt1Canny =50 #  Canny阈值1，低于此值边缘被忽略，默认50
         self.HPt2Canny =150 #Canny阈值2，高于此值边缘强边缘，默认150
         self.HPkernel=9 #形态学增强（闭运算核大小）
-        self.HP_ts_radio= 0.3 # 拉伸突变容忍参数 # TODO
+        self.HP_ts_radio= 0.3 # 拉伸突变容忍参数 
         self.HP_gamma = 0.7 # 指数映射比率
         self.HPbrightness_threshold = 120 # 亮度通道阈值，高于此值则加亮度
 

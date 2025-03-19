@@ -3,7 +3,8 @@ import numpy as np
 from image_preprocessing import preprocess_image
 from contour_detection import detect_contours, sort_quad, sort_quadrilaterals
 from color_detection import detect_colors, classify_color
-from utils import detect_stretch_ratio, visualization_detect_contours
+from detect_radio import detect_stretch_ratio
+from visualize_part import visualize_process , visualization_detect_contours
 
 class ColorCodeDetector:
     def __init__(self, image_path):
@@ -18,8 +19,8 @@ class ColorCodeDetector:
 
         # 中间元素
         self.contours = []  # 轮廓
-        self.quadrilaterals = []  # 有效内接四边形
-        self.contours_ordered = []  # 排序后的内接四边形
+        self.quadrilaterals = []  # 有效外接四边形
+        self.contours_ordered = []  # 排序后的外接四边形
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
         self.radio_stretch = 1.0  # 拉伸参数
@@ -53,51 +54,37 @@ class ColorCodeDetector:
         self.classify_color = classify_color.__get__(self)
         self.detect_stretch_ratio = detect_stretch_ratio.__get__(self)
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
+        self.visualize_process = visualize_process.__get__(self)
 
-    def visualize_process(self, title_showd, img_showed):
-        if self.show_steps:
-            title_showd = "[Step " + str(self.steps_fig) + " ]= " + title_showd
-            cv2.imshow(title_showd, img_showed)
-            self.steps_fig += 1
+
 
     def analyze(self):
         """完整处理流程"""
-        try:
-            # 执行图像预处理、轮廓检测、颜色检测和可视化
-            self.preprocess_image()  # 预处理
-            self.detect_contours()  # 轮廓检测
-            radio_stretch = self.detect_stretch_ratio()  # 检测拉伸比率
-            print(f"平均拉伸比率: {radio_stretch:.2f}")
+        # 取消try；便于查询故障 try:
+        # 执行图像预处理、轮廓检测、颜色检测和可视化
+        self.preprocess_image()  # 预处理 
+        self.detect_contours()  # 轮廓检测 
+        self.detect_stretch_ratio()  # 检测拉伸比率 
+        
+        self.detect_colors()  # 颜色检测
 
-            self.detect_colors()  # 颜色检测
+        self.visualization_detect_contours()  # 可视化找色块 
 
-            color_matrix = self.final_codes
+        cv2.waitKey()
+        cv2.destroyAllWindows()
 
-            self.visualization_detect_contours()  # 可视化找色块
-
-            cv2.waitKey()
-            cv2.destroyAllWindows()
-
-            return {
-                "color_matrix": color_matrix,
-                "stretch_ratio": radio_stretch,
-                "status": "success"
-            }
-        except Exception as e:
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+        return {
+            "color_matrix": self.final_codes,
+            "stretch_ratio": self.radio_stretch,
+        }
 
 if __name__ == "__main__":
     # 使用示例
-    detector = ColorCodeDetector("./Sample/Pic00_1.jpg")
+    detector = ColorCodeDetector("./Sample/Pic00_1.jpg") # __init__
     result = detector.analyze()
 
     print("识别结果：")
     for row in result.get('color_matrix', []):
         print(row)
-
-    # 当返回错误的时候，就报错
-    if result['status'] == 'failed':
-        print(f"识别失败: {result['error']}")
+    print("拉伸比例：")
+    print(result.get('stretch_ratio'))
