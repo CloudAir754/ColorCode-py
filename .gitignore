@@ -1,0 +1,5 @@
+# 忽略某目录下的所有文件
+Application/__pycache__/*
+
+# 忽略以 .$ 开始、以 .drawio.bkp 结尾的文件
+*.$.drawio.bkp
