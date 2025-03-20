@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="3088" dy="2005" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3987" dy="2549" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -565,13 +565,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--5" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1. 检测 外接四边形 的长宽比&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 统计学计算 平均值 偏移值告警&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 存放拉伸信息到【radio_stretch】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;用【&lt;/span&gt;&lt;span style=&quot;background-color: transparent; font-size: 15px;&quot;&gt;contours_ordered（排序的外接）&lt;/span&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--5" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1. 检测 外接四边形 的长宽比&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 统计学计算 平均值 偏移值告警&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 存放拉伸信息到【radio_stretch】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;用【&lt;/span&gt;&lt;span style=&quot;background-color: transparent; font-size: 15px;&quot;&gt;contours_ordered（排序的外接）&lt;/span&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1009" y="6404.5" width="410" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--7" value="&lt;div&gt;sort_quad&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;边缘内部排序&amp;nbsp;&lt;/span&gt;&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--7" value="&lt;div&gt;sort_quad&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;边缘内部排序&amp;nbsp;&lt;/span&gt;&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1624" y="6900" width="200" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--8" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--8" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="480" y="6200" as="sourcePoint" />
             <mxPoint x="1620" y="6710" as="targetPoint" />
@@ -584,11 +584,11 @@
           </mxGeometry>
         </mxCell>
         <UserObject label="contour_detection.py" id="Jhv9pFlufdpkfksX2X6--9">
-          <mxCell style="text;whiteSpace=wrap;fontSize=40;labelBackgroundColor=#FF2616;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxCell style="text;whiteSpace=wrap;fontSize=40;labelBackgroundColor=#FF2616;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
             <mxGeometry x="1870" y="6524.5" width="440" height="40" as="geometry" />
           </mxCell>
         </UserObject>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--10" value="调用&lt;div&gt;传入：&lt;/div&gt;&lt;div&gt;（边缘==&amp;gt;旋转矩形四角）&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--10" value="调用&lt;div&gt;传入：&lt;/div&gt;&lt;div&gt;（边缘==&amp;gt;旋转矩形四角）&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry x="0.004" width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1791" y="6765" as="sourcePoint" />
             <mxPoint x="1791" y="6875" as="targetPoint" />
@@ -596,42 +596,42 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--11" value="调用9个块排序&lt;div&gt;内部四点相对顺序已正确&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--11" value="调用9个块排序&lt;div&gt;内部四点相对顺序已正确&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1770" y="6983" as="sourcePoint" />
             <mxPoint x="1770" y="7093" as="targetPoint" />
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--12" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--12" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1669" y="6865" as="sourcePoint" />
             <mxPoint x="1669" y="6775" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--13" value="传回&lt;br&gt;&lt;div&gt;传回有序9个矩形&amp;nbsp;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Jhv9pFlufdpkfksX2X6--12">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--13" value="传回&lt;br&gt;&lt;div&gt;传回有序9个矩形&amp;nbsp;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="Jhv9pFlufdpkfksX2X6--12" vertex="1" connectable="0">
           <mxGeometry x="0.1135" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--14" value="&lt;div&gt;将每个四边形的顶点按照左上、右上、右下、左下的顺序排序&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--14" value="&lt;div&gt;将每个四边形的顶点按照左上、右上、右下、左下的顺序排序&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1890" y="6896" width="541" height="68" as="geometry" />
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--15" value="&lt;div&gt;对 9 个四边形进行排序，从左到右：按照123第一排；456第二排；789第三排&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;存【contours_ordered】&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--15" value="&lt;div&gt;对 9 个四边形进行排序，从左到右：按照123第一排；456第二排；789第三排&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;存【contours_ordered】&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1878" y="7070" width="541" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--16" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--16" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1669" y="7080" as="sourcePoint" />
             <mxPoint x="1669" y="6990" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--17" value="传回&lt;br&gt;&lt;div&gt;传回有序9个矩形&amp;nbsp;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Jhv9pFlufdpkfksX2X6--16">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--17" value="传回&lt;br&gt;&lt;div&gt;传回有序9个矩形&amp;nbsp;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="Jhv9pFlufdpkfksX2X6--16" vertex="1" connectable="0">
           <mxGeometry x="0.1135" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--18" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--18" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="480" y="6290" as="sourcePoint" />
             <mxPoint x="730" y="6470" as="targetPoint" />
@@ -641,13 +641,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--19" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=5;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--19" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=5;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="2410" y="6463.89" as="sourcePoint" />
             <mxPoint x="1589" y="6463.39" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--20" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--20" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="470" y="6070" as="sourcePoint" />
             <mxPoint x="1610" y="5580" as="targetPoint" />
@@ -660,11 +660,11 @@
           </mxGeometry>
         </mxCell>
         <UserObject label="image_preprocessing.py" id="Jhv9pFlufdpkfksX2X6--21">
-          <mxCell style="text;whiteSpace=wrap;fontSize=40;labelBackgroundColor=#FF2616;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxCell style="text;whiteSpace=wrap;fontSize=40;labelBackgroundColor=#FF2616;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
             <mxGeometry x="1780" y="5530" width="440" height="40" as="geometry" />
           </mxCell>
         </UserObject>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--22" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--22" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1670" y="5900" as="sourcePoint" />
             <mxPoint x="1870" y="6190" as="targetPoint" />
@@ -673,7 +673,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="Jhv9pFlufdpkfksX2X6--23" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;《显示》&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1.标准尺寸图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 增量图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 灰度图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;4. 高斯模糊&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;5.Canny边缘检测&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;6. 闭运算&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="Jhv9pFlufdpkfksX2X6--23" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;《显示》&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1.标准尺寸图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 增量图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 灰度图像&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;4. 高斯模糊&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;5.Canny边缘检测&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;6. 闭运算&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1871" y="6075" width="610" height="230" as="geometry" />
         </mxCell>
       </root>

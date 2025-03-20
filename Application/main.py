@@ -80,7 +80,7 @@ class ColorCodeDetector:
 
 if __name__ == "__main__":
     # 使用示例
-    detector = ColorCodeDetector("./Sample/Pic00_1.jpg") # __init__
+    detector = ColorCodeDetector("./Sample/Pic00_3.jpg") # __init__
     result = detector.analyze()
 
     print("识别结果：")
