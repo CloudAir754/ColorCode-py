@@ -18,7 +18,7 @@ def visualization_detect_contours(self):
     quadrilaterals = self.quadrilaterals
 
     # 改进的可视化
-    contour_image = cv2.resize(self.image.copy(), (self.target_size, self.target_size))
+    contour_image = cv2.resize(self.image.copy(), (self.target_size_x, self.target_size_y))
     
     # 绘制原始轮廓
     cv2.drawContours(contour_image, valid_contours, -1, (0, 255, 0), 2)
@@ -46,5 +46,5 @@ def visualization_detect_contours(self):
         cv2.putText(contour_image, f"Step {step_vi}", (center_x - 20, center_y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)  # 黑色文本
     
-    contour_image2 = cv2.resize(contour_image, (self.target_size * 2, self.target_size * 2))
+    contour_image2 = cv2.resize(contour_image, (self.target_size_x * 2, self.target_size_y * 2))
     self.visualize_process("Debug View", contour_image2)

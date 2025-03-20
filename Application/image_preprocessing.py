@@ -1,10 +1,49 @@
 import cv2
 import numpy as np
 
+def light_detect(self):
+    """计算前20%(HP_lightest_pencent)的元素亮度，用来筛选不需要的图像"""
+
+    gray_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+    # 计算灰度图像的直方图
+    
+    
+    hist = cv2.calcHist([gray_image], [0], None, [256], [0, 256])
+    
+
+    total_pixels = gray_image.shape[0] * gray_image.shape[1]
+    top_20_percent_pixels = int(total_pixels * self.HP_lightest_pencent / 100)
+    # 计算前20%亮度的像素数
+    
+    # 找到前20%亮度的像素值
+    cumulative_sum = 0
+    for i in range(255, -1, -1):
+        cumulative_sum += hist[i]
+        if cumulative_sum >= top_20_percent_pixels:
+            threshold = i
+            break
+    
+    print("亮度计算值：")
+    print(threshold)
+    # 提取前20%亮度的像素
+    top_20_percent_mask = gray_image >= threshold
+    
+    # 计算这些像素的平均亮度
+    average_brightness = np.mean(gray_image[top_20_percent_mask])
+
+    # print("亮度：")
+    # print(average_brightness)
+    self.lightMax = average_brightness
+    
+    return 
+
+
+
+
 def preprocess_image(self):
     """图像预处理流水线，规范大小，找出边缘（初步）"""
     # 尺寸标准化
-    img = cv2.resize(self.image, (self.target_size, self.target_size), interpolation=cv2.INTER_AREA)
+    img = cv2.resize(self.image, (self.target_size_x, self.target_size_y), interpolation=cv2.INTER_AREA)
     self.Sized_img = img
 
     # 图像增强
@@ -41,4 +80,7 @@ def preprocess_image(self):
     self.visualize_process("CLOSED Func.", closed)
 
     self.closed_img = closed
+
+    # 下断点
+    # cv2.waitKey()
     return 

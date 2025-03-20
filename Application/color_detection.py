@@ -3,7 +3,7 @@ import numpy as np
 
 def detect_colors(self):
     """颜色检测主逻辑"""
-    detectColor_image = cv2.resize(self.image.copy(), (self.target_size, self.target_size))
+    detectColor_image = cv2.resize(self.image.copy(), (self.target_size_x, self.target_size_y))
 
     color_means = []  # 存储每个区域的颜色平均值
     color_detects = []  # 存储颜色分类结果
@@ -61,13 +61,15 @@ def detect_colors(self):
         cv2.rectangle(detectColor_image, (center_x, center_y), (center_x + center_w, center_y + center_h), (0, 255, 0), 2)
         # 绘制颜色提取区域
 
-    detectColor_image2 = cv2.resize(detectColor_image.copy(), (self.target_size * 2, self.target_size * 2)) # 放大已经被批注的图像
+    detectColor_image2 = cv2.resize(detectColor_image.copy(), (self.target_size_x * 2, self.target_size_y * 2)) # 放大已经被批注的图像
     self.visualize_process("Color Detect", detectColor_image2)
 
     self.color_blocks = color_means
     self.final_codes = color_detects
     # 返回【颜色值列表和颜色分析结果列表】
 
+    # 断点
+    #cv2.waitKey()
     return
 
 def classify_color(self, color):

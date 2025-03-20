@@ -5,9 +5,12 @@ def detect_contours(self):
     """这个函数主要作用是剔除无用边缘"""
     contours, _ = cv2.findContours(self.closed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    img_size = self.target_size
-    min_dim = img_size // self.min_screen_coef
-    max_dim = img_size // self.max_screen_coef
+    img_size_x = self.target_size_x
+    img_size_y = self.target_size_y  # 分别获取x和y方向的目标尺寸
+    min_dim_x = img_size_x // self.min_screen_coef
+    min_dim_y = img_size_y // self.min_screen_coef
+    max_dim_x = img_size_x // self.max_screen_coef
+    max_dim_y = img_size_y // self.max_screen_coef
 
     valid_contours = []  # 可用边缘
     quadrilaterals = []  # 内接四边形
@@ -26,17 +29,23 @@ def detect_contours(self):
             # 旋转矩形的四个点坐标
             box = np.intp(box)
 
-            if (box < 0).any() or (box >= img_size).any(): 
-                # 避免框框超过图片
+            # 分别检查x和y方向是否超出图像边界
+            if (box[:, 0] < 0).any() or (box[:, 0] >= img_size_x).any() or \
+            (box[:, 1] < 0).any() or (box[:, 1] >= img_size_y).any():
                 continue
+
+            # 计算旋转矩形的宽度和高度
+            width = max(np.linalg.norm(box[0] - box[1]), np.linalg.norm(box[2] - box[3]))
+            height = max(np.linalg.norm(box[1] - box[2]), np.linalg.norm(box[3] - box[0]))
+
+            # 判断宽度和高度是否在允许的范围内
+            if not (min_dim_x <= width <= max_dim_x and min_dim_y <= height <= max_dim_y):
+                continue
+            
+
         except:
             continue
 
-        x, y, w, h = cv2.boundingRect(cnt)
-        # 这个矩形是能够完全包围所有点的最小矩形 【最小外接正交矩形】
-        #TODO 感觉好像这个量更有价值叭…………
-        if not (min_dim < w < max_dim and min_dim < h < max_dim):
-            continue
 
         valid_contours.append(cnt)
         quadrilaterals.append(box)
@@ -54,6 +63,8 @@ def detect_contours(self):
     self.contours = valid_contours
     self.quadrilaterals = self.sort_quad(quadrilaterals)  # 调用类的方法
 
+    # 断点
+    # cv2.waitKey()
     return
 
 def sort_quad(self, quadrilaterals):

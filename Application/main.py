@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from image_preprocessing import preprocess_image
+from image_preprocessing import preprocess_image , light_detect
 from contour_detection import detect_contours, sort_quad, sort_quadrilaterals
 from color_detection import detect_colors, classify_color
 from detect_radio import detect_stretch_ratio
@@ -24,6 +24,7 @@ class ColorCodeDetector:
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
         self.radio_stretch = 1.0  # 拉伸参数
+        self.lightMax = 0 # 前百分之20%的亮度
 
         # 控制开关
         self.show_steps = True  # 控制是否显示处理步骤
@@ -31,7 +32,8 @@ class ColorCodeDetector:
         self.show_hsv = True  # False 则代表显示rgb
 
         # 参数配置
-        self.target_size = 320  # 标准处理尺寸 320
+        self.target_size_x = 400  # 标准处理尺寸 320
+        self.target_size_y = 300
         self.min_contour_area = 50  # 最小轮廓面积 50
         self.min_screen_coef = 12  # 最小有效轮廓占总图像的1/x 8 
         self.max_screen_coef = 3  # 最小有效轮廓占总图像的1/x 3
@@ -44,6 +46,9 @@ class ColorCodeDetector:
         self.HP_ts_radio = 0.3  # 拉伸突变容忍参数 
         self.HP_gamma = 0.7  # 指数映射比率
         self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度
+        self.HP_lightest_pencent= 20 #前百分之x的亮度，计算均值
+        self.HP_lightest_Min_threshold = 20 # 亮度最低阈值20 
+        self.HP_lightest_Max_threshold = 170 # 亮度最高阈值 170 猜的
 
         # 绑定外部函数到类实例
         self.preprocess_image = preprocess_image.__get__(self)
@@ -55,12 +60,24 @@ class ColorCodeDetector:
         self.detect_stretch_ratio = detect_stretch_ratio.__get__(self)
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)
+        self.light_detect = light_detect.__get__(self)
 
 
 
     def analyze(self):
         """完整处理流程"""
         # 取消try；便于查询故障 try:
+        # 先查亮度
+        self.light_detect()
+        if self.lightMax > self.HP_lightest_Max_threshold or \
+            self.lightMax < self.HP_lightest_Min_threshold:
+            print("亮度不合格，不再处理")
+            print(self.lightMax)
+            return{
+                "Error_info":"LightError",
+            }
+
+        cv2.waitKey()
         # 执行图像预处理、轮廓检测、颜色检测和可视化
         self.preprocess_image()  # 预处理 
         self.detect_contours()  # 轮廓检测 
@@ -76,12 +93,16 @@ class ColorCodeDetector:
         return {
             "color_matrix": self.final_codes,
             "stretch_ratio": self.radio_stretch,
+            
         }
 
 if __name__ == "__main__":
     # 使用示例
-    detector = ColorCodeDetector("./Sample/Pic00_1.jpg") # __init__
+    detector = ColorCodeDetector("./Sample/Pic01_1.png") # __init__
     result = detector.analyze()
+
+    if result.get('Error_info'):
+        print(result.get('Error_info'))
 
     print("识别结果：")
     for row in result.get('color_matrix', []):
