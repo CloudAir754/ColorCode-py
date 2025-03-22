@@ -5,13 +5,23 @@ def detect_colors(self):
     """颜色检测主逻辑"""
     detectColor_image = cv2.resize(self.image.copy(), (self.target_size_x, self.target_size_y))
 
+    # 在图片周围添加一圈黑边，确保文字不会超出范围
+    border_size = self.border_size  # 可以根据需要调整边框大小
+    detectColor_image = cv2.copyMakeBorder(detectColor_image, border_size, border_size, border_size, border_size, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+
+
+
     color_means = []  # 存储每个区域的颜色平均值
     color_detects = []  # 存储颜色分类结果
 
     for quad in self.quadrilaterals:
         x, y, w, h = cv2.boundingRect(quad)
 
-        center_factor = 2 / 3
+        #TODO 调整坐标，考虑到添加的边框
+        x += border_size
+        y += border_size
+
+        center_factor = self.center_factor
         center_x = int(x + w * (0.5 - center_factor / 2))
         center_y = int(y + h * (0.5 - center_factor / 2))
         center_w = int(w * center_factor)
@@ -21,10 +31,12 @@ def detect_colors(self):
 
         if self.show_hsv:
             hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            h_mean = int(np.mean(hsv_roi[:, :, 0]))
-            s_mean = int(np.mean(hsv_roi[:, :, 1]))
-            v_mean = int(np.mean(hsv_roi[:, :, 2]))
+            h_mean = int(np.mean(hsv_roi[:, :, 0]))*2
+            s_mean = int(np.mean(hsv_roi[:, :, 1]))/255
+            v_mean = int(np.mean(hsv_roi[:, :, 2]))/255
             # 求 hsv 平均值
+            # 且按照标准格式保存
+            # 色调（H-360），饱和度（S-1），亮度（V-1）
 
             colors_group = (h_mean, s_mean, v_mean)
             color_means.append(colors_group)
@@ -34,9 +46,10 @@ def detect_colors(self):
 
             # 展示颜色代码
             text_position = (center_x, center_y - 30)
+            # 显示两位小数
             cv2.putText(detectColor_image, f"H: {h_mean}", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(detectColor_image, f"S: {s_mean}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(detectColor_image, f"V: {v_mean}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            cv2.putText(detectColor_image, f"S: {s_mean:.2f}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            cv2.putText(detectColor_image, f"V: {v_mean:.2f}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         else:
             # 以下为rgb的算法；这三行是rgb求均值
             b_mean = int(np.mean(roi[:, :, 0]))
@@ -51,8 +64,11 @@ def detect_colors(self):
             # 添加颜色文本
 
             hex_color = "#{:02X}{:02X}{:02X}".format(r_mean, g_mean, b_mean)
+            
+            
             text_position = (center_x, center_y - 10)
             cv2.putText(detectColor_image, hex_color, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            
 
         classify_text_position = (center_x, center_y + center_h + 20)
         cv2.putText(detectColor_image, classify_color_text, classify_text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
@@ -77,26 +93,22 @@ def classify_color(self, color):
     """根据颜色代码判断颜色类别（红色、蓝色、绿色、黑色）。"""
     if self.show_hsv:
         h, s, v = color
-        h = h * 2
-        From0 = 0
-        From0_endRed = 60
-        FromRed_endGreen = 165
-        FromGreen_endBlue = 300
-        FromBlue_end360 = 360
-        Black_below = 60
 
-        if v < Black_below:
+        # 配置颜色分类的边界条件和颜色名称
+        color_rules = self.HP_Color_rules
+
+        # 黑色判定条件
+        black_threshold = 60 / 255
+        if v < black_threshold:
             return "Black"
 
-        if From0 <= h < From0_endRed:
-            return "Red"
-        elif h < FromRed_endGreen:
-            return "Green"
-        elif h < FromGreen_endBlue:
-            return "Blue"
-        elif h < FromBlue_end360:
-            return "Red"
+        # 根据配置列表判断颜色
+        for rule in color_rules:
+            lower, upper = rule["range"]
+            if lower <= h < upper:
+                return rule["name"]
 
+        # 默认返回HSV值
         return f"H:{h},S:{s},V:{v}"
     else:
         b, g, r = color

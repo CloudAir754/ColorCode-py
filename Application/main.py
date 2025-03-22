@@ -56,6 +56,17 @@ class ColorCodeDetector:
         self.HP_lightest_pencent= 20 #前百分之x的亮度，计算均值
         self.HP_lightest_Min_threshold = 20 # 亮度最低阈值20 
         self.HP_lightest_Max_threshold = 170 # 亮度最高阈值 170 猜的
+        self.border_size = 50 # 补偿黑边长度
+        self.center_factor = 2 / 3 # 取色区域，中心比率
+
+        self.HP_Color_rules = [
+            {"range": (0, 50), "name": "Red"},    # 0 <= h < 50 为红色
+            {"range": (50, 70), "name": "Yellow"}, # 50 <= h < 70 为黄色
+            {"range": (70, 150), "name": "Green"}, # 70 <= h < 150 为绿色
+            {"range": (150, 283), "name": "Blue"}, # 150 <= h < 283 为蓝色
+            {"range": (283, 360), "name": "Red"}  # 283 <= h < 360 为红色
+        ]
+
 
         # 绑定外部函数到类实例
         self.preprocess_image = preprocess_image.__get__(self)
@@ -125,7 +136,7 @@ class ColorCodeDetector:
 if __name__ == "__main__":
     # 使用示例
     detector = ColorCodeDetector("./Sample/Pic02_1.png",\
-                                 use_provided_quad=True,\
+                                 use_provided_quad=False,\
                                     quad_file_path="./Application/testjson/123.json") # __init__
     result = detector.analyze()
 
