@@ -5,3 +5,9 @@ Application/__pycache__/*
 *.$.drawio.bkp
 
 .$程序运行框图.drawio.bkp
+.$程序运行框图.drawio.dtmp
+
+# 上传元宝
+Application/txt
+# 测试数据
+Application/testjson

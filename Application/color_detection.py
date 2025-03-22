@@ -70,6 +70,7 @@ def detect_colors(self):
 
     # 断点
     #cv2.waitKey()
+    self.export_quadrilaterals()    # 保存数据
     return
 
 def classify_color(self, color):

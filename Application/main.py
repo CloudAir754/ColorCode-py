@@ -1,17 +1,22 @@
 import cv2
 import numpy as np
+import json
+
 from image_preprocessing import preprocess_image , light_detect
 from contour_detection import detect_contours, sort_quad, sort_quadrilaterals
 from color_detection import detect_colors, classify_color
 from detect_radio import detect_stretch_ratio
 from visualize_part import visualize_process , visualization_detect_contours
+from import_export_quad import import_quadrilaterals , export_quadrilaterals
 
 class ColorCodeDetector:
-    def __init__(self, image_path):
+    def __init__(self, image_path,use_provided_quad=False, quad_file_path=None):
         # 初始化图像路径并加载图像
         self.image = cv2.imread(image_path)
         if self.image is None:
             raise ValueError("图像加载失败，请检查文件路径")
+        self.quad_file_path = quad_file_path  # 边缘信息文件路径
+        
         
         # 图片
         self.Sized_img = None  # 图像大小拉伸后
@@ -23,13 +28,15 @@ class ColorCodeDetector:
         self.contours_ordered = []  # 排序后的外接四边形
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
-        self.radio_stretch = 1.0  # 拉伸参数
+        self.radio_stretch = 0.1  # 拉伸参数
         self.lightMax = 0 # 前百分之20%的亮度
 
         # 控制开关
         self.show_steps = True  # 控制是否显示处理步骤
         self.steps_fig = 0
         self.show_hsv = True  # False 则代表显示rgb
+        self.use_provided_quad = use_provided_quad  # 是否使用传入的外接信息
+        
 
         # 参数配置
         self.target_size_x = 400  # 标准处理尺寸 320
@@ -61,6 +68,9 @@ class ColorCodeDetector:
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)
         self.light_detect = light_detect.__get__(self)
+        self.import_quadrilaterals = import_quadrilaterals.__get__(self)
+        self.export_quadrilaterals = export_quadrilaterals.__get__(self)
+        
 
 
 
@@ -74,31 +84,49 @@ class ColorCodeDetector:
             print("亮度不合格，不再处理")
             print(self.lightMax)
             return{
+                "Light_Max":self.lightMax,
                 "Error_info":"LightError",
             }
 
         cv2.waitKey()
-        # 执行图像预处理、轮廓检测、颜色检测和可视化
-        self.preprocess_image()  # 预处理 
-        self.detect_contours()  # 轮廓检测 
-        self.detect_stretch_ratio()  # 检测拉伸比率 
-        
-        self.detect_colors()  # 颜色检测
+     
+        # 当引入外接的时候，使用这个逻辑
+        if self.use_provided_quad :
+            self.import_quadrilaterals()
+            self.detect_colors()
+            self.visualization_detect_contours()
+            cv2.waitKey()
+            cv2.destroyAllWindows()
+            return{
+                "color_matrix": self.final_codes,
+            }
 
-        self.visualization_detect_contours()  # 可视化找色块 
 
-        cv2.waitKey()
-        cv2.destroyAllWindows()
-
-        return {
-            "color_matrix": self.final_codes,
-            "stretch_ratio": self.radio_stretch,
+        else:
+            # 执行图像预处理、轮廓检测、颜色检测和可视化
+            self.preprocess_image()  # 预处理 
+            self.detect_contours()  # 轮廓检测 
+            self.detect_stretch_ratio()  # 检测拉伸比率 
             
-        }
+            self.detect_colors()  # 颜色检测
 
+            self.visualization_detect_contours()  # 可视化找色块 
+
+            cv2.waitKey()
+            cv2.destroyAllWindows()
+            
+            
+            return {
+                "color_matrix": self.final_codes,
+                "stretch_ratio": self.radio_stretch,
+                
+            }
+    
 if __name__ == "__main__":
     # 使用示例
-    detector = ColorCodeDetector("./Sample/Pic01_1.png") # __init__
+    detector = ColorCodeDetector("./Sample/Pic02_1.png",\
+                                 use_provided_quad=True,\
+                                    quad_file_path="./Application/testjson/123.json") # __init__
     result = detector.analyze()
 
     if result.get('Error_info'):

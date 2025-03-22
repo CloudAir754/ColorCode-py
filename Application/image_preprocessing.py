@@ -23,16 +23,11 @@ def light_detect(self):
             threshold = i
             break
     
-    print("亮度计算值：")
-    print(threshold)
     # 提取前20%亮度的像素
     top_20_percent_mask = gray_image >= threshold
     
     # 计算这些像素的平均亮度
     average_brightness = np.mean(gray_image[top_20_percent_mask])
-
-    # print("亮度：")
-    # print(average_brightness)
     self.lightMax = average_brightness
     
     return 
