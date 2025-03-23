@@ -1,2 +1,10 @@
 app/txt
 app/__pycache__
+
+out
+tmp
+
+
+.$*.drawio.bkp
+.$*.drawio.dtmp
+
