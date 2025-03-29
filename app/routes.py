@@ -3,6 +3,9 @@ import tempfile
 import os
 from .video_processor import process_video
 
+import time
+
+
 def init_routes(app):
     @app.route('/upload', methods=['POST'])
     def upload_video():
@@ -28,3 +31,18 @@ def init_routes(app):
         # os.remove(temp_file_path)
 
         return jsonify({"message": "Video processed successfully"}), 200
+    
+    # 新增测试端口
+    @app.route('/ping', methods=['GET'])
+    def ping():
+        # 返回当前时间戳和服务器状态
+        start_time = time.time()
+        response = {
+            "status": "alive",
+            "server_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "response_time": None
+        }
+        response["response_time"] = time.time() - start_time
+        return jsonify(response)
+    
+    
