@@ -6,10 +6,12 @@ from .video_processor import process_video
 def init_routes(app):
     @app.route('/upload', methods=['POST'])
     def upload_video():
+        
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
 
         file = request.files['file']
+
         if file.filename == '':
             return jsonify({"error": "No selected file"}), 400
 
@@ -22,6 +24,7 @@ def init_routes(app):
         process_video(temp_file_path)
 
         # 删除临时文件
-        os.remove(temp_file_path)
+        print(temp_file_path)
+        # os.remove(temp_file_path)
 
         return jsonify({"message": "Video processed successfully"}), 200
