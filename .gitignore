@@ -1,5 +1,25 @@
-# 忽略某目录下的所有文件
-Application/__pycache__/*
 
+# 忽略图像处理类下的临时文件
+ColorCodeDetector/__pycache__
+
+
+# 忽略服务器类下的临时文件
+FlaskServer/__pycache__
+
+
+# drawio相关
+
+.$程序运行框图.drawio.bkp
+.$程序运行框图.drawio.dtmp
 # 忽略以 .$ 开始、以 .drawio.bkp 结尾的文件
 *.$.drawio.bkp
+.$*.drawio.bkp
+.$*.drawio.dtmp
+
+# 视频服务器的临时文件
+out/2025*
+
+
+
+
+
