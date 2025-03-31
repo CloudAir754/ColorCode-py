@@ -1,12 +1,29 @@
-# 忽略某目录下的所有文件
+
+# 忽略图像处理类下的临时文件
 ColorCodeDetector/__pycache__
 ColorCodeDetector/testjson
 
-# 忽略以 .$ 开始、以 .drawio.bkp 结尾的文件
-*.$.drawio.bkp
+
+# drawio相关
 
 .$程序运行框图.drawio.bkp
 .$程序运行框图.drawio.dtmp
+# 忽略以 .$ 开始、以 .drawio.bkp 结尾的文件
+*.$.drawio.bkp
+.$*.drawio.bkp
+.$*.drawio.dtmp
 
-# 上传元宝
+# 视频服务器
 Application/txt
+
+# 代码临时文件
+app/txt
+app/__pycache__
+
+
+out
+tmp
+
+
+
+

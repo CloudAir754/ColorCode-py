@@ -1,7 +1,6 @@
-# 三维码识别程序-py代码（技术探索部分）
+# 三维码识别程序-py代码
 该应用用于识别一种彩色二维码，是某双创课题的识别技术支持。
 - 三维码：带有颜色信息的二维码（3*3的色块）
-- 三维码基底：某种特殊材料
 - 与常规二维码的不同：1. 颜色信息有效；2. 大小仅3*3，无定位码/纠错码；3. 拉伸信息有效；4. 边缘不一定锐利
 - 二维码标记位置如下
 1   2   3
@@ -10,19 +9,14 @@
 
 
 ## 需要的库文件
-- ` pip install opencv-python`
-- `pip install numpy`
-- ` pip install scikit-learn`
-- `pip install requests`
+- ` pip install opencv-python，numpy ，scikit-learn，requests`
+
 # 需要的功能
 1. 读取照片
 2. 识别图片的9个色块颜色
 3. 根据色块的相对位置(1~9)读出其颜色序列
 4. 读取其x/y的压缩/拉伸比率
 5. 输出【4】+【5】
-## 待办事项~
-- [ ] 后期考虑移植到Android应用
-- [ ] 考虑加入后端服务器，增加社群/后台分析功能
 
 
 # 基本原理
@@ -45,9 +39,30 @@
 为表达对DeepSeek“源神”的敬意，本项目使用MIT许可证开源
 
 
-# vscode快捷键
-- 折叠 ctrl+k+0
-- 打开 ctrl+k+j
-- ctrl+K ctrl+[ 折叠本级以及包含的多有节点
-- ctrl+K ctrl+] 取消折叠本级以及包含的多有节点
-- ctrl+K ctrl+L折叠本级
+# 接受POST的视频
+
+- 该服务器是一个工具，接受通过POST发送的视频，将视频拆散为单独的帧。
+- 该工具将会在远期与[ColorCode-py](https://github.com/CloudAir754/ColorCode-py)进行配合
+
+# 1. 启用方法
+分为启动服务器、发送视频两个部分。
+## 1.1 启动服务器
+```
+python run.py
+```
+启动程序
+## 1.2 发送测试视频
+```
+curl -X POST -F "file=@./Sample/trailer.mp4" http://localhost:5000/upload
+```
+用`curl`命令，以post方式，发送视频到指定路径
+
+
+# 2. Requirements
+```
+pip freeze > requirements.txt
+# 获取所有软件包列表
+pip install pipreqs
+pipreqs .
+# 获取当前使用软件包列表
+```
