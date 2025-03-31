@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # ./Sample/Pic02_1.png
 
     time_start = time.time()
-    detector = ColorCodeDetector("./Sample/0331/Pic03_D1-SPEACIAL.png",\
+    detector = ColorCodeDetector("./Sample/0331/Pic03_C1-SPEACIAL.png",\
                                  use_provided_quad=False,\
                                     quad_file_path="./ColorCodeDetector/testjson/123.json") # __init__
     result = detector.analyze()

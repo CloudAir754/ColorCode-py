@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="7827" dy="-536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1782" dy="-4111" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -528,6 +528,79 @@
         </mxCell>
         <mxCell id="cnEs0zNnc2Y4UcNPGsv1-5" value="&lt;div&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&lt;b&gt;返回内容&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;Status&quot;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;状态信息（Error/Success）&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;Error_info&quot;:&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;错误信息，包含——&lt;/div&gt;&lt;div&gt;&quot;LightTooBright&quot;,&quot;LightTooDim&quot;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;Light_Max&quot;:&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;前提，光强错误时。self.lightMax,&lt;/div&gt;&lt;div&gt;&lt;div&gt;&quot;color_matrix&quot;: &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;最终颜色序列。self.final_codes,&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&quot;stretch_ratio&quot;: &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;前提，未导入定位点。拉伸比。self.radio_stretch,&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
           <mxGeometry x="191" y="6400" width="510" height="334" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-1" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="7740" as="sourcePoint" />
+            <mxPoint x="1430" y="7740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-3" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;亮度随时间的变化&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="862" y="7310" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-5" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="710" y="7723" as="sourcePoint" />
+            <mxPoint x="1475" y="7722.347826086956" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="810" y="7723" />
+              <mxPoint x="810" y="7473" />
+              <mxPoint x="830" y="7473" />
+              <mxPoint x="860" y="7620" />
+              <mxPoint x="1030" y="7703" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-7" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1020" y="7420" as="sourcePoint" />
+            <mxPoint x="842" y="7470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-8" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="7740" as="sourcePoint" />
+            <mxPoint x="680" y="7435" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-10" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;紫外灯照射&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="940" y="7370" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-11" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="980" y="7480" as="sourcePoint" />
+            <mxPoint x="868" y="7598" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-12" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;紫外灯关闭；开始记录&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="940" y="7430" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-13" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="7680" as="sourcePoint" />
+            <mxPoint x="1072" y="7690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-14" value="&lt;span style=&quot;font-size: 20px;&quot;&gt;几乎完全损失亮度&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1182" y="7638" width="290" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-18" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="864" y="7650" width="18" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-19" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="900" y="7663" width="18" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-20" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="940" y="7680" width="18" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-21" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1010" y="7630" as="sourcePoint" />
+            <mxPoint x="932" y="7663" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M_lALt27nMzxTEfUI_RB-22" value="&lt;span style=&quot;font-size: 20px;&quot;&gt;中间三次采样&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 20px;&quot;&gt;第一次采样，取颜色信息+拉伸信息+定位信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 20px;&quot;&gt;第二三次采样，根据定位信息，采集颜色信息&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=default;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="7500" width="430" height="150" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -43,8 +43,8 @@ class ColorCodeDetector:
         
 
         # 参数配置
-        self.target_size_x = 400  # 标准处理尺寸 320
-        self.target_size_y = 225
+        self.target_size_x = 400  # 标准处理尺寸 400
+        self.target_size_y = 225 # 225
         self.min_contour_area = 50  # 最小轮廓面积 50
         self.min_screen_coef = 12  # 最小有效轮廓占总图像的1/x 8 
         self.max_screen_coef = 3  # 最小有效轮廓占总图像的1/x 3

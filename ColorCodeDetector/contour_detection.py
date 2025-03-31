@@ -41,6 +41,8 @@ def detect_contours(self):
             # # 判断宽度和高度是否在允许的范围内
             # if not (min_dim_x <= width <= max_dim_x and min_dim_y <= height <= max_dim_y):
             #     continue
+
+            
             width, height = rect[1]  # 直接使用 minAreaRect 的 width 和 height
 
             # 如果需要确保 width >= height
