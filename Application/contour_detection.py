@@ -35,13 +35,19 @@ def detect_contours(self):
                 continue
 
             # 计算旋转矩形的宽度和高度
-            width = max(np.linalg.norm(box[0] - box[1]), np.linalg.norm(box[2] - box[3]))
-            height = max(np.linalg.norm(box[1] - box[2]), np.linalg.norm(box[3] - box[0]))
+            # width = max(np.linalg.norm(box[0] - box[1]), np.linalg.norm(box[2] - box[3]))
+            # height = max(np.linalg.norm(box[1] - box[2]), np.linalg.norm(box[3] - box[0]))
 
-            # 判断宽度和高度是否在允许的范围内
+            # # 判断宽度和高度是否在允许的范围内
+            # if not (min_dim_x <= width <= max_dim_x and min_dim_y <= height <= max_dim_y):
+            #     continue
+            width, height = rect[1]  # 直接使用 minAreaRect 的 width 和 height
+
+            # 如果需要确保 width >= height
+            width, height = sorted(rect[1], reverse=True)
+
             if not (min_dim_x <= width <= max_dim_x and min_dim_y <= height <= max_dim_y):
                 continue
-            
 
         except:
             continue
@@ -58,13 +64,14 @@ def detect_contours(self):
     if len(quadrilaterals) != 9:
         print("有效内接四边形不为9！！请检查超参数配置或检查图片")
         cv2.waitKey()
+        self.contours = valid_contours    
+        self.quadrilaterals = quadrilaterals  # 至少让我看看有哪些呗
         
+    else:
+        self.contours = valid_contours 
+        self.quadrilaterals = self.sort_quad(quadrilaterals)  # 调用类的方法
 
-    self.contours = valid_contours
-    self.quadrilaterals = self.sort_quad(quadrilaterals)  # 调用类的方法
 
-    # 断点
-    # cv2.waitKey()
     return
 
 def sort_quad(self, quadrilaterals):

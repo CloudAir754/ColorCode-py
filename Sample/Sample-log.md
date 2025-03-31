@@ -21,6 +21,25 @@
 - Pic02_2.jpg       拉伸比为1，T=2
 - Pic02_3.jpg       拉伸比为1，T=3
 
+### 第3套
+2025/03/31
+(横16；高9)
+- Pic03_A1.jpg       拉伸比为1，T=1
+- Pic03_A2.jpg       拉伸比为1，T=2
+- Pic03_A3.jpg       拉伸比为1，T=3  
+
+- Pic03_B1.jpg       拉伸比为1，T=1
+- Pic03_B2.jpg       拉伸比为1，T=2
+- Pic03_B3.jpg       拉伸比为1，T=3   
+
+- Pic03_C1.jpg       拉伸比为2，T=1
+- Pic03_C1-SPEACIAL.jpg       拉伸比为2，T=1    (手动遮掉了材料衬底)
+- Pic03_C2.jpg       拉伸比为2，T=2
+- Pic03_C3.jpg       拉伸比为2，T=3   
+
+- Pic03_D1.jpg       拉伸比为3，T=1
+- Pic03_D2.jpg       拉伸比为3，T=2
+- Pic03_D3.jpg       拉伸比为3，T=3   
 
 ### 第13套
 干扰图像

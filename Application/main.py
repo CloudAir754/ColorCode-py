@@ -45,7 +45,7 @@ class ColorCodeDetector:
 
         # 参数配置
         self.target_size_x = 400  # 标准处理尺寸 320
-        self.target_size_y = 300
+        self.target_size_y = 225
         self.min_contour_area = 50  # 最小轮廓面积 50
         self.min_screen_coef = 12  # 最小有效轮廓占总图像的1/x 8 
         self.max_screen_coef = 3  # 最小有效轮廓占总图像的1/x 3
@@ -60,7 +60,7 @@ class ColorCodeDetector:
         self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度
         self.HP_lightest_pencent= 20 #前百分之x的亮度，计算均值 20
         self.HP_lightest_Min_threshold = 20 # 亮度最低阈值20 
-        self.HP_lightest_Max_threshold = 170 # 亮度最高阈值 170 猜的
+        self.HP_lightest_Max_threshold = 200 # 亮度最高阈值 170 猜的
         self.border_size = 50 # 补偿黑边长度
         self.center_factor = 2 / 3 # 取色区域，中心比率
 
@@ -145,6 +145,7 @@ class ColorCodeDetector:
             
             
             return {
+                "Status":"Success",
                 "color_matrix": self.final_codes,
                 "stretch_ratio": self.radio_stretch,
                 
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     # ./Sample/Pic02_1.png
 
     time_start = time.time()
-    detector = ColorCodeDetector("./Sample/Pic01_1.png",\
+    detector = ColorCodeDetector("./Sample/0331/Pic03_D1-SPEACIAL.png",\
                                  use_provided_quad=False,\
                                     quad_file_path="./Application/testjson/123.json") # __init__
     result = detector.analyze()
@@ -172,5 +173,6 @@ if __name__ == "__main__":
     else:
         print(result.get('Error_info'))
         # 打印错误信息
+        print(f"亮度信息：{result.get('Light_Max')}")
 
 

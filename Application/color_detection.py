@@ -17,7 +17,7 @@ def detect_colors(self):
     for quad in self.quadrilaterals:
         x, y, w, h = cv2.boundingRect(quad)
 
-        #TODO 调整坐标，考虑到添加的边框
+        
         x += border_size
         y += border_size
 
