@@ -4,9 +4,7 @@ import time
 from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
 
 if __name__ == "__main__":
-    # 使用示例
-    # ./Sample/videos/aaa3=3s/frame_0000.jpg
-    # ./Sample/Pic02_1.png
+
 
     time_start = time.time()
     detector = ColorCodeDetector("./Sample/0331/Pic03_C1-SPEACIAL.png",\

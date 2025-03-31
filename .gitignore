@@ -1,7 +1,10 @@
 
 # 忽略图像处理类下的临时文件
 ColorCodeDetector/__pycache__
-ColorCodeDetector/testjson
+
+
+# 忽略服务器类下的临时文件
+FlaskServer/__pycache__
 
 
 # drawio相关
@@ -13,16 +16,9 @@ ColorCodeDetector/testjson
 .$*.drawio.bkp
 .$*.drawio.dtmp
 
-# 视频服务器
-Application/txt
+# 视频服务器的临时文件
+out/2025*
 
-# 代码临时文件
-app/txt
-app/__pycache__
-
-
-out
-tmp
 
 
 

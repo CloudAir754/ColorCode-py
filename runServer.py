@@ -1,5 +1,5 @@
-from app import app
-from app import delete_testFile
+from FlaskServer import app
+from FlaskServer import delete_testFile
 
 if __name__ == '__main__':
     # 启动 Flask 应用
