@@ -1,5 +1,6 @@
 # 忽略某目录下的所有文件
-Application/__pycache__/*
+ColorCodeDetector/__pycache__
+ColorCodeDetector/testjson
 
 # 忽略以 .$ 开始、以 .drawio.bkp 结尾的文件
 *.$.drawio.bkp
@@ -9,5 +10,3 @@ Application/__pycache__/*
 
 # 上传元宝
 Application/txt
-# 测试数据
-Application/testjson

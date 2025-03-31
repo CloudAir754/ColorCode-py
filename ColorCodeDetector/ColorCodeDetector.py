@@ -1,14 +1,13 @@
 import cv2
 import numpy as np
-import json
-import time
 
-from image_preprocessing import preprocess_image , light_detect
-from contour_detection import detect_contours, sort_quad, sort_quadrilaterals
-from color_detection import detect_colors, classify_color
-from detect_radio import detect_stretch_ratio
-from visualize_part import visualize_process , visualization_detect_contours
-from import_export_quad import import_quadrilaterals , export_quadrilaterals
+
+from .image_preprocessing import preprocess_image , light_detect
+from .contour_detection import detect_contours, sort_quad, sort_quadrilaterals
+from .color_detection import detect_colors, classify_color
+from .detect_radio import detect_stretch_ratio
+from .visualize_part import visualize_process , visualization_detect_contours
+from .import_export_quad import import_quadrilaterals , export_quadrilaterals
 
 time_start = 0  # 程序开始
 time_end =0     # 程序结束
@@ -151,15 +150,16 @@ class ColorCodeDetector:
                 
             }
     
-if __name__ == "__main__":
-    # 使用示例
-    # ./Sample/videos/aaa3=3s/frame_0000.jpg
-    # ./Sample/Pic02_1.png
 
+
+import json
+import time
+
+if __name__ == "__main__":
     time_start = time.time()
     detector = ColorCodeDetector("./Sample/0331/Pic03_D1-SPEACIAL.png",\
                                  use_provided_quad=False,\
-                                    quad_file_path="./Application/testjson/123.json") # __init__
+                                    quad_file_path="./ColorCodeDetector/testjson/123.json") # __init__
     result = detector.analyze()
     time_end = time.time()
     print(f"程序识别耗时： {time_end - time_start } ")
