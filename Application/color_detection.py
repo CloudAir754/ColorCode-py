@@ -98,7 +98,7 @@ def classify_color(self, color):
         color_rules = self.HP_Color_rules
 
         # 黑色判定条件
-        black_threshold = 60 / 255
+        black_threshold = self.HP_Black_th
         if v < black_threshold:
             return "Black"
 
