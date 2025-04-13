@@ -153,3 +153,18 @@ def locate_nine(self):
         print(f"轮廓 {idx + 1} 的行列编号: 行 {row}, 列 {col}")
 
 
+    # 创建一个二维数组，初始时每个元素都是 None
+    grid = [[None for _ in range(3)] for _ in range(3)]
+    # print(grid)
+
+        # 将轮廓（contours_ordered的元素）放入对应的二维数组位置
+    for idx, (row, col) in enumerate(contour_positions):
+        grid[row][col] = self.contours_ordered[idx]
+
+    # grid 按照行/列 索引 外接四边形坐标
+
+    self.grid = grid
+
+    return 
+
+
