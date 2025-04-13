@@ -7,7 +7,7 @@ from .contour_detection import detect_contours, sort_quad
 from .color_detection import detect_colors, classify_color
 from .detect_radio import detect_stretch_ratio
 from .visualize_part import visualize_process , visualization_detect_contours
-from .diagonal_postion import detect_green_diagonals,calculate_edge_boundaries
+from .diagonal_postion import detect_green_diagonals,locate_nine
 
 time_start = 0  # 程序开始
 time_end =0     # 程序结束
@@ -83,7 +83,7 @@ class ColorCodeDetector:
         # 新增函数（后续再加入drawio）
         self.detect_green_diagonals = detect_green_diagonals.__get__(self)
 
-        self.calculate_edge_boundaries = calculate_edge_boundaries.__get__(self)
+        self.locate_nine = locate_nine.__get__(self)
         
 
 
@@ -97,7 +97,7 @@ class ColorCodeDetector:
         
         # 新增的绿色对角线检测
         self.detect_green_diagonals()
-        self.calculate_edge_boundaries()
+        self.locate_nine()
 
 
 

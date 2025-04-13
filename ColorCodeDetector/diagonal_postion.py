@@ -85,21 +85,6 @@ def detect_green_diagonals(self):
 
 def locate_nine(self):
     """
-    输入 x 个原始边缘、对角线色块的情况
-
-    根据色块定位每行每列的极限值
-
-    根据原始边缘的中心点，定位每行每列的边缘在哪里
-
-    输出 排好序的 边缘
-
-    
-    """
-    return
-
-
-def calculate_edge_boundaries(self):
-    """
     计算每行和每列的左右边缘和上下边缘
     """
     
