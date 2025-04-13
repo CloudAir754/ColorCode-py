@@ -27,6 +27,7 @@ class ColorCodeDetector:
         self.contours = []  # 轮廓 
         self.contours_ordered = [] # 内部有效的轮廓集
         self.quadrilaterals = []  # 有效外接四边形
+        self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
 
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
@@ -80,7 +81,7 @@ class ColorCodeDetector:
 
         # 新增函数（后续再加入drawio）
         self.detect_green_diagonals = detect_green_diagonals.__get__(self)
-        self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
+        
 
 
 
