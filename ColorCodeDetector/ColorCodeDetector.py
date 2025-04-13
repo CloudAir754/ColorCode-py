@@ -38,6 +38,7 @@ class ColorCodeDetector:
         # 控制开关
         self.show_steps = True  # 控制是否显示处理步骤
         self.steps_fig = 0
+        self.show_details = False # 展示hsv
 
         # 参数配置
         self.target_size_x = 225  # 标准处理尺寸 225
