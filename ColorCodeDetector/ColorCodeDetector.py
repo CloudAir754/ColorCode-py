@@ -99,8 +99,6 @@ class ColorCodeDetector:
         self.detect_green_diagonals()
         self.locate_nine()
 
-
-
         self.detect_colors()  # 颜色检测
         self.visualization_detect_contours()  # 可视化找色块 
 
