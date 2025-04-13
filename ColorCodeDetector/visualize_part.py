@@ -43,8 +43,8 @@ def visualization_detect_contours(self):
         center_y = y + h // 2
 
         # 在中心点绘制 step 信息
-        cv2.putText(contour_image, f"Step {step_vi}", (center_x - 20, center_y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)  # 黑色文本
+        cv2.putText(contour_image, f"S{step_vi}", (center_x - 10 , center_y + 5 ),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 1)  # 黑色文本
     
     contour_image2 = cv2.resize(contour_image, (self.target_size_x * 2, self.target_size_y * 2))
     self.visualize_process("Debug View", contour_image2)

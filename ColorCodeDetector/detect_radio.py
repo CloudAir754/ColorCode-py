@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 
+# TODO 比率检测函数也需要改
 def detect_stretch_ratio(self):
     """检测拉伸比率，并检查波动是否过大。"""
     if not self.contours_ordered:
         print("没有检测到有效的四边形，无法计算拉伸比率。")
         return 
-        # raise ValueError("没有检测到有效的四边形，无法计算拉伸比率。")
     
     ratios = []
     

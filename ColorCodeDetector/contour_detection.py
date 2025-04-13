@@ -18,7 +18,10 @@ def detect_contours(self):
     for cnt in contours:# 筛选每个轮廓
         if len(cnt) < 5:  # 至少需要5个点才能构成有效轮廓
             continue
-        area = cv2.contourArea(cnt)
+            
+        contour = cv2.convexHull(cnt)  # 通过凸包矫正点序(轮廓点顺序错误​)
+        area = cv2.contourArea(contour) # 计算面积
+
         if area < self.min_contour_area: # 最小轮廓面积限制
             continue
 
@@ -34,14 +37,6 @@ def detect_contours(self):
             (box[:, 1] < 0).any() or (box[:, 1] >= img_size_y).any():
                 continue
 
-            # 计算旋转矩形的宽度和高度
-            # width = max(np.linalg.norm(box[0] - box[1]), np.linalg.norm(box[2] - box[3]))
-            # height = max(np.linalg.norm(box[1] - box[2]), np.linalg.norm(box[3] - box[0]))
-
-            # # 判断宽度和高度是否在允许的范围内
-            # if not (min_dim_x <= width <= max_dim_x and min_dim_y <= height <= max_dim_y):
-            #     continue
-
             
             width, height = rect[1]  # 直接使用 minAreaRect 的 width 和 height
 
@@ -53,26 +48,23 @@ def detect_contours(self):
 
         except:
             continue
-
-
+        
         valid_contours.append(cnt)
         quadrilaterals.append(box)
 
-    print("有效边缘个数：")
-    print(len(valid_contours))
+
     print("有效内接四边形个数：")
     print(len(quadrilaterals))
 
+    self.contours = valid_contours    
+    self.quadrilaterals = quadrilaterals
+
+
     if len(quadrilaterals) != 9:
         print("有效内接四边形不为9！！请检查超参数配置或检查图片")
-        cv2.waitKey()
-        self.contours = valid_contours    
-        self.quadrilaterals = quadrilaterals  # 至少让我看看有哪些呗
-        
+        cv2.waitKey()     
     else:
-        self.contours = valid_contours 
-        self.quadrilaterals = self.sort_quad(quadrilaterals)  # 调用类的方法
-
+        self.contours_ordered = self.sort_quad(quadrilaterals)  # 调用排序内部点
 
     return
 
@@ -95,72 +87,4 @@ def sort_quad(self, quadrilaterals):
         sorted_quad = np.array([top_left, top_right, bottom_right, bottom_left])
         sorted_quads.append(sorted_quad)
 
-    sorted_quadrilaterals = self.sort_quadrilaterals(sorted_quads)
-    return sorted_quadrilaterals
-
-def sort_quadrilaterals(self, points_list):
-    """对 9 个四边形进行排序，从左到右：按照123第一排；456第二排；789第三排"""
-    quad_centers = []
-    for quad in points_list:
-        cx = sum(p[0] for p in quad) / 4
-        cy = sum(p[1] for p in quad) / 4
-        quad_centers.append((cx, cy))
-
-    a_index = min(range(9), key=lambda i: quad_centers[i][0] + quad_centers[i][1])
-    A = points_list[a_index]
-
-    top_avg = (A[0][1] + A[1][1]) / 2
-    bottom_avg = (A[2][1] + A[3][1]) / 2
-
-    same_row = []
-    for i in range(9):
-        if i == a_index:
-            continue
-        cx, cy = quad_centers[i]
-        if top_avg <= cy <= bottom_avg:
-            same_row.append((cx, i))
-
-    same_row.sort(key=lambda x: x[0])
-    B_index = same_row[0][1]
-    C_index = same_row[1][1]
-
-    remaining = set(range(9)) - {a_index, B_index, C_index}
-
-    B = points_list[B_index]
-    left_x = (B[0][0] + B[3][0]) / 2
-    right_x = (B[1][0] + B[2][0]) / 2
-
-    left_col = []
-    mid_col = []
-    right_col = []
-    for i in remaining:
-        cx, cy = quad_centers[i]
-        if cx < left_x:
-            left_col.append((cy, i))
-        elif cx > right_x:
-            right_col.append((cy, i))
-        else:
-            mid_col.append((cy, i))
-
-    left_col.sort(key=lambda x: x[0])
-    mid_col.sort(key=lambda x: x[0])
-    right_col.sort(key=lambda x: x[0])
-
-    if len(left_col) < 2 or len(mid_col) < 2 or len(right_col) < 2:
-        print("未足额找到第二行和第三行的方块")
-        print(left_col)
-        print(mid_col)
-        print(right_col)
-        print("=======================================")
-
-    indices = [a_index, B_index, C_index]
-    indices.append(left_col[0][1])
-    indices.append(mid_col[0][1])
-    indices.append(right_col[0][1])
-    indices.append(left_col[1][1])
-    indices.append(mid_col[1][1])
-    indices.append(right_col[1][1])
-
-    ordered = [points_list[i] for i in indices if i is not None]
-    self.contours_ordered = ordered
-    return ordered
+    return sorted_quads

@@ -29,45 +29,28 @@ def detect_colors(self):
 
         roi = detectColor_image[center_y:center_y + center_h, center_x:center_x + center_w]
 
-        if self.show_hsv:
-            hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            h_mean = int(np.mean(hsv_roi[:, :, 0]))*2
-            s_mean = int(np.mean(hsv_roi[:, :, 1]))/255
-            v_mean = int(np.mean(hsv_roi[:, :, 2]))/255
-            # 求 hsv 平均值
-            # 且按照标准格式保存
-            # 色调（H-360），饱和度（S-1），亮度（V-1）
+    
+        hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        h_mean = int(np.mean(hsv_roi[:, :, 0]))*2
+        s_mean = int(np.mean(hsv_roi[:, :, 1]))/255
+        v_mean = int(np.mean(hsv_roi[:, :, 2]))/255
+        # 求 hsv 平均值
+        # 且按照标准格式保存
+        # 色调（H-360），饱和度（S-1），亮度（V-1）
 
-            colors_group = (h_mean, s_mean, v_mean)
-            color_means.append(colors_group)
-            classify_color_text = classify_color(self, colors_group)
-            color_detects.append(classify_color_text)
-            # 按顺序添加颜色hsv列表
+        colors_group = (h_mean, s_mean, v_mean)
+        color_means.append(colors_group)
+        classify_color_text = classify_color(self, colors_group)
+        color_detects.append(classify_color_text)
+        # 按顺序添加颜色hsv列表
 
-            # 展示颜色代码
-            text_position = (center_x, center_y - 30)
-            # 显示两位小数
-            cv2.putText(detectColor_image, f"H: {h_mean}", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(detectColor_image, f"S: {s_mean:.2f}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(detectColor_image, f"V: {v_mean:.2f}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-        else:
-            # 以下为rgb的算法；这三行是rgb求均值
-            b_mean = int(np.mean(roi[:, :, 0]))
-            g_mean = int(np.mean(roi[:, :, 1]))
-            r_mean = int(np.mean(roi[:, :, 2]))
-            colors_group = (b_mean, g_mean, r_mean)
-            color_means.append(colors_group)
-            # 按顺序添加颜色rgb列表
-
-            classify_color_text = classify_color(self, colors_group)
-            color_detects.append(classify_color_text)
-            # 添加颜色文本
-
-            hex_color = "#{:02X}{:02X}{:02X}".format(r_mean, g_mean, b_mean)
-            
-            
-            text_position = (center_x, center_y - 10)
-            cv2.putText(detectColor_image, hex_color, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        # 展示颜色代码
+        text_position = (center_x, center_y - 30)
+        # 显示两位小数
+        cv2.putText(detectColor_image, f"H: {h_mean}", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        cv2.putText(detectColor_image, f"S: {s_mean:.2f}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        cv2.putText(detectColor_image, f"V: {v_mean:.2f}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    
             
 
         classify_text_position = (center_x, center_y + center_h + 20)
@@ -86,30 +69,28 @@ def detect_colors(self):
 
     # 断点
     #cv2.waitKey()
-    self.export_quadrilaterals()    # 保存数据
+
     return
 
 def classify_color(self, color):
     """根据颜色代码判断颜色类别（红色、蓝色、绿色、黑色）。"""
-    if self.show_hsv:
-        h, s, v = color
+    
+    h, s, v = color
 
-        # 配置颜色分类的边界条件和颜色名称
-        color_rules = self.HP_Color_rules
+    # 配置颜色分类的边界条件和颜色名称
+    color_rules = self.HP_Color_rules
 
-        # 黑色判定条件
-        black_threshold = self.HP_Black_th
-        if v < black_threshold:
-            return "Black"
+    # 黑色判定条件
+    black_threshold = self.HP_Black_th
+    if v < black_threshold:
+        return "Black"
 
-        # 根据配置列表判断颜色
-        for rule in color_rules:
-            lower, upper = rule["range"]
-            if lower <= h < upper:
-                return rule["name"]
+    # 根据配置列表判断颜色
+    for rule in color_rules:
+        lower, upper = rule["range"]
+        if lower <= h < upper:
+            return rule["name"]
 
-        # 默认返回HSV值
-        return f"H:{h},S:{s},V:{v}"
-    else:
-        b, g, r = color
-        return f"B:{b},G:{g},R:{r}"
+    # 默认返回HSV值
+    return f"H:{h},S:{s},V:{v}"
+
