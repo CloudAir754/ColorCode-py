@@ -1,7 +1,7 @@
 
 # 忽略图像处理类下的临时文件
 ColorCodeDetector/__pycache__
-
+ColorCodeDetector/txt
 
 # 忽略服务器类下的临时文件
 FlaskServer/__pycache__

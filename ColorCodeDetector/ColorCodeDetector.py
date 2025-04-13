@@ -7,6 +7,7 @@ from .contour_detection import detect_contours, sort_quad
 from .color_detection import detect_colors, classify_color
 from .detect_radio import detect_stretch_ratio
 from .visualize_part import visualize_process , visualization_detect_contours
+from .diagonal_postion import detect_green_diagonals
 
 time_start = 0  # 程序开始
 time_end =0     # 程序结束
@@ -77,6 +78,10 @@ class ColorCodeDetector:
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)    
 
+        # 新增函数（后续再加入drawio）
+        self.detect_green_diagonals = detect_green_diagonals.__get__(self)
+        self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
+
 
 
     def analyze(self):
@@ -86,13 +91,13 @@ class ColorCodeDetector:
         self.detect_contours()  # 轮廓检测 
         self.detect_stretch_ratio()  # 检测拉伸比率 
         
-
+        # 新增的绿色对角线检测
+        self.detect_green_diagonals()
 
 
 
 
         self.detect_colors()  # 颜色检测
-
         self.visualization_detect_contours()  # 可视化找色块 
 
 

@@ -69,7 +69,6 @@ def detect_colors(self):
 
     # 断点
     #cv2.waitKey()
-
     return
 
 def classify_color(self, color):
