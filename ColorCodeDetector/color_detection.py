@@ -71,8 +71,8 @@ def detect_colors(self):
     #cv2.waitKey()
     return
 
-def classify_color(self, color):
-    """根据颜色代码判断颜色类别（红色、蓝色、绿色、黑色）。"""
+def classify_color(self, color): 
+    """输入hsv序列，输出对应颜色字符"""
     
     h, s, v = color
 

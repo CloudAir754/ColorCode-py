@@ -27,6 +27,7 @@ class ColorCodeDetector:
         self.contours = []  # 轮廓 
         self.contours_ordered = [] # 内部有效的轮廓集
         self.quadrilaterals = []  # 有效外接四边形
+
         self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
 
         self.color_blocks = []  # 颜色块
@@ -66,7 +67,7 @@ class ColorCodeDetector:
             {"range": (283, 360), "name": "Red"}  # 283 <= h < 360 为红色！！
         ]
 
-        self.HP_Black_th= 0.3 # 黑色阈值
+        self.HP_Black_th= 0.65 # 黑色阈值 0.3
 
 
         # 绑定外部函数到类实例

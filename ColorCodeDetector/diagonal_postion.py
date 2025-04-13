@@ -5,8 +5,6 @@ def detect_green_diagonals(self):
     """
     从已处理的图像中提取对角线上的绿色色块，并可选地在原始图像上显示结果
     """
-    # 初始化存储数组
-    self.green_diagonals = []
     
     # 检查前置条件
     if not hasattr(self, 'Sized_img') or not self.contours_ordered:
@@ -18,7 +16,7 @@ def detect_green_diagonals(self):
     
     for i in range(len(self.contours_ordered)):
         quad = self.contours_ordered[i]
-        
+                
         # 获取四边形外接矩形
         x, y, w, h = cv2.boundingRect(quad)
         
@@ -45,17 +43,19 @@ def detect_green_diagonals(self):
         
         # 仅当确实是绿色时才存储
         if color == "Green":
-            self.green_diagonals.append(( x , y , w , h ))
+            self.green_diagonals.append(quad)
             
     
     # 按照x+y的值从小到大排序
-    self.green_diagonals.sort(key=lambda point: point[0] + point[1])
+    print(self.green_diagonals)
+    self.green_diagonals.sort(key=lambda point: point[0][0] + point[0][1]) # 左上角坐标 x+y
 
     step_dia = 0
 
     # 在图像上绘制标记
-    for (x, y, w, h) in self.green_diagonals:
+    for quad_tmp in self.green_diagonals:
         step_dia+=1
+        x, y, w, h = cv2.boundingRect(quad_tmp)
         
         center_x = int(x + w * (0.5 - self.center_factor / 2))
         center_y = int(y + h * (0.5 - self.center_factor / 2))
