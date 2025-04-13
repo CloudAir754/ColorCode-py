@@ -47,7 +47,7 @@ def detect_green_diagonals(self):
             
     
     # 按照x+y的值从小到大排序
-    print(self.green_diagonals)
+    # print(self.green_diagonals)
     self.green_diagonals.sort(key=lambda point: point[0][0] + point[0][1]) # 左上角坐标 x+y
 
     step_dia = 0
@@ -79,3 +79,92 @@ def detect_green_diagonals(self):
     
     # 显示结果图像
     self.visualize_process("Green Diagonals Detection", img_diag)
+
+    return
+
+
+def locate_nine(self):
+    """
+    输入 x 个原始边缘、对角线色块的情况
+
+    根据色块定位每行每列的极限值
+
+    根据原始边缘的中心点，定位每行每列的边缘在哪里
+
+    输出 排好序的 边缘
+
+    
+    """
+    return
+
+
+def calculate_edge_boundaries(self):
+    """
+    计算每行和每列的左右边缘和上下边缘
+    """
+    
+    # 检查是否有绿色对角线
+    if not hasattr(self, 'green_diagonals') or not self.green_diagonals:
+        print("[WARN] 没有检测到绿色对角线")
+        return
+
+    # 初始化行列的边缘序列
+    row_boundaries = [] # 行 （上边界，下边界）
+    col_boundaries = [] # 列 （左边界，右边界）
+    
+
+
+    for quad in self.green_diagonals:
+        # 获取四边形的边界框
+        x, y, w, h = cv2.boundingRect(quad)
+        
+        # 获取当前四边形的左边界和右边界
+        left_edge = x
+        right_edge = x + w
+        
+        # 获取当前四边形的上边界和下边界
+        top_edge = y
+        bottom_edge = y + h
+        
+        row_boundaries.append((top_edge,bottom_edge))
+        col_boundaries.append((left_edge,right_edge))
+       
+    # 存储所有中心坐标的列表
+    center_points = []
+    # 用来存储每个轮廓的行列编号
+    contour_positions = []
+    
+    for quad in self.contours_ordered:
+        # 获取四边形的边界框
+        x, y, w, h = cv2.boundingRect(quad)
+        
+        # 计算中心点坐标
+        center_x = int(x + w / 2)
+        center_y = int(y + h / 2)
+        
+        # 存储中心坐标
+        center_points.append((center_x, center_y))
+
+        # 判断该中心点属于哪一行
+        row = None
+        for idx, (top_edge, bottom_edge) in enumerate(row_boundaries):
+            if top_edge <= center_y <= bottom_edge:
+                row = idx
+                break
+        
+        # 判断该中心点属于哪一列
+        col = None
+        for idx, (left_edge, right_edge) in enumerate(col_boundaries):
+            if left_edge <= center_x <= right_edge:
+                col = idx
+                break
+        
+        # 将行列编号存储在 contour_positions 中
+        contour_positions.append((row, col))
+
+     # 输出每个轮廓的行列编号
+    print("每个轮廓的行列编号:")
+    for idx, (row, col) in enumerate(contour_positions):
+        print(f"轮廓 {idx + 1} 的行列编号: 行 {row}, 列 {col}")
+
+
