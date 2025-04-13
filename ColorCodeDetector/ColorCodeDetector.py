@@ -29,6 +29,7 @@ class ColorCodeDetector:
         self.quadrilaterals = []  # 有效外接四边形
 
         self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
+        self.grid = [[None for _ in range(3)] for _ in range(3)] # 按照行列索引外接四边形
 
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
@@ -80,9 +81,8 @@ class ColorCodeDetector:
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)    
 
-        # 新增函数（后续再加入drawio）
+        
         self.detect_green_diagonals = detect_green_diagonals.__get__(self)
-
         self.locate_nine = locate_nine.__get__(self)
         
 

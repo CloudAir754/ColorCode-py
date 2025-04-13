@@ -148,9 +148,9 @@ def locate_nine(self):
         contour_positions.append((row, col))
 
      # 输出每个轮廓的行列编号
-    print("每个轮廓的行列编号:")
-    for idx, (row, col) in enumerate(contour_positions):
-        print(f"轮廓 {idx + 1} 的行列编号: 行 {row}, 列 {col}")
+    # print("每个轮廓的行列编号:")
+    # for idx, (row, col) in enumerate(contour_positions):
+    #     print(f"轮廓 {idx + 1} 的行列编号: 行 {row}, 列 {col}")
 
 
     # 创建一个二维数组，初始时每个元素都是 None
