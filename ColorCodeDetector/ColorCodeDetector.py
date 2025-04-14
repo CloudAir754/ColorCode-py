@@ -7,6 +7,7 @@ from .contour_detection import detect_contours, sort_quad
 from .color_detection import detect_colors, classify_color
 from .detect_radio import detect_stretch_ratio
 from .visualize_part import visualize_process , visualization_detect_contours
+from .diagonal_postion import detect_green_diagonals,locate_nine
 
 time_start = 0  # 程序开始
 time_end =0     # 程序结束
@@ -27,6 +28,9 @@ class ColorCodeDetector:
         self.contours_ordered = [] # 内部有效的轮廓集
         self.quadrilaterals = []  # 有效外接四边形
 
+        self.green_diagonals = []  # 存储绿色对角线色块的数组(x,y,w,h)
+        self.grid = [[None for _ in range(3)] for _ in range(3)] # 按照行列索引外接四边形
+
         self.color_blocks = []  # 颜色块
         self.final_codes = []  # 颜色代码
         self.radio_stretch = 0.1  # 拉伸参数
@@ -34,6 +38,7 @@ class ColorCodeDetector:
         # 控制开关
         self.show_steps = True  # 控制是否显示处理步骤
         self.steps_fig = 0
+        self.show_details = False # 展示hsv
 
         # 参数配置
         self.target_size_x = 225  # 标准处理尺寸 225
@@ -64,7 +69,7 @@ class ColorCodeDetector:
             {"range": (283, 360), "name": "Red"}  # 283 <= h < 360 为红色！！
         ]
 
-        self.HP_Black_th= 0.3 # 黑色阈值
+        self.HP_Black_th= 0.65 # 黑色阈值 0.3
 
 
         # 绑定外部函数到类实例
@@ -77,6 +82,11 @@ class ColorCodeDetector:
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)    
 
+        
+        self.detect_green_diagonals = detect_green_diagonals.__get__(self)
+        self.locate_nine = locate_nine.__get__(self)
+        
+
 
 
     def analyze(self):
@@ -86,13 +96,11 @@ class ColorCodeDetector:
         self.detect_contours()  # 轮廓检测 
         self.detect_stretch_ratio()  # 检测拉伸比率 
         
-
-
-
-
+        # 新增的绿色对角线检测
+        self.detect_green_diagonals()
+        self.locate_nine()
 
         self.detect_colors()  # 颜色检测
-
         self.visualization_detect_contours()  # 可视化找色块 
 
 

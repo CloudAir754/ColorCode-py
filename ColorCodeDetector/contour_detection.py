@@ -58,13 +58,12 @@ def detect_contours(self):
 
     self.contours = valid_contours    
     self.quadrilaterals = quadrilaterals
+    self.contours_ordered = self.sort_quad(quadrilaterals)  # 调用排序内部点
 
 
     if len(quadrilaterals) != 9:
         print("有效内接四边形不为9！！请检查超参数配置或检查图片")
         cv2.waitKey()     
-    else:
-        self.contours_ordered = self.sort_quad(quadrilaterals)  # 调用排序内部点
 
     return
 

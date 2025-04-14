@@ -8,7 +8,7 @@ if __name__ == "__main__":
     time_start = time.time()
 
     # v0.3 之后，只需要导入图片
-    detector = ColorCodeDetector("./Sample/Sample-01-01.png") # __init__
+    detector = ColorCodeDetector("./Sample/Sample-01-03.png") # __init__
 
     result = detector.analyze()
     time_end = time.time()

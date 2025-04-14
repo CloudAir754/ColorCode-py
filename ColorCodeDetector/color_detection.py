@@ -14,51 +14,64 @@ def detect_colors(self):
     color_means = []  # 存储每个区域的颜色平均值
     color_detects = []  # 存储颜色分类结果
 
-    for quad in self.quadrilaterals:
-        x, y, w, h = cv2.boundingRect(quad)
+    grid = self.grid 
+
+    for row in range(3):  # 外层循环遍历行
+        for col in range(3):  # 内层循环遍历列
+            grid_use = grid[row][col]
+            if grid_use is None:
+                # print(f"空值：{row} {col}")
+                color_means.append((0,0,0))
+                color_detects.append("Zero=Black")
+                continue
+            
+            # 如果是正常有效的区域        
+            x, y, w, h = cv2.boundingRect(grid_use)
+            
+            x += border_size
+            y += border_size
+
+            center_factor = self.center_factor
+            center_x = int(x + w * (0.5 - center_factor / 2))
+            center_y = int(y + h * (0.5 - center_factor / 2))
+            center_w = int(w * center_factor)
+            center_h = int(h * center_factor)
+
+            roi = detectColor_image[center_y:center_y + center_h, center_x:center_x + center_w]
 
         
-        x += border_size
-        y += border_size
+            hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+            h_mean = int(np.mean(hsv_roi[:, :, 0]))*2
+            s_mean = int(np.mean(hsv_roi[:, :, 1]))/255
+            v_mean = int(np.mean(hsv_roi[:, :, 2]))/255
+            # 求 hsv 平均值
+            # 且按照标准格式保存
+            # 色调（H-360），饱和度（S-1），亮度（V-1）
 
-        center_factor = self.center_factor
-        center_x = int(x + w * (0.5 - center_factor / 2))
-        center_y = int(y + h * (0.5 - center_factor / 2))
-        center_w = int(w * center_factor)
-        center_h = int(h * center_factor)
+            colors_group = (h_mean, s_mean, v_mean)
+            color_means.append(colors_group)
+            classify_color_text = classify_color(self, colors_group)
+            color_detects.append(classify_color_text)
+            # 按顺序添加颜色hsv列表
 
-        roi = detectColor_image[center_y:center_y + center_h, center_x:center_x + center_w]
+            # 展示颜色代码
+            text_position = (center_x, center_y - 30)
 
-    
-        hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        h_mean = int(np.mean(hsv_roi[:, :, 0]))*2
-        s_mean = int(np.mean(hsv_roi[:, :, 1]))/255
-        v_mean = int(np.mean(hsv_roi[:, :, 2]))/255
-        # 求 hsv 平均值
-        # 且按照标准格式保存
-        # 色调（H-360），饱和度（S-1），亮度（V-1）
+            if self.show_details:
 
-        colors_group = (h_mean, s_mean, v_mean)
-        color_means.append(colors_group)
-        classify_color_text = classify_color(self, colors_group)
-        color_detects.append(classify_color_text)
-        # 按顺序添加颜色hsv列表
+                # 显示两位小数
+                cv2.putText(detectColor_image, f"H: {h_mean}", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                cv2.putText(detectColor_image, f"S: {s_mean:.2f}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                cv2.putText(detectColor_image, f"V: {v_mean:.2f}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        
+                
 
-        # 展示颜色代码
-        text_position = (center_x, center_y - 30)
-        # 显示两位小数
-        cv2.putText(detectColor_image, f"H: {h_mean}", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-        cv2.putText(detectColor_image, f"S: {s_mean:.2f}", (center_x, center_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-        cv2.putText(detectColor_image, f"V: {v_mean:.2f}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-    
-            
+            classify_text_position = (center_x, center_y + center_h + 20)
+            cv2.putText(detectColor_image, classify_color_text, classify_text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+            # 这一行是向图片添加颜色注释信息
 
-        classify_text_position = (center_x, center_y + center_h + 20)
-        cv2.putText(detectColor_image, classify_color_text, classify_text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-        # 这一行是向图片添加颜色注释信息
-
-        cv2.rectangle(detectColor_image, (center_x, center_y), (center_x + center_w, center_y + center_h), (0, 255, 0), 2)
-        # 绘制颜色提取区域
+            cv2.rectangle(detectColor_image, (center_x, center_y), (center_x + center_w, center_y + center_h), (0, 255, 0), 2)
+            # 绘制颜色提取区域
 
     detectColor_image2 = cv2.resize(detectColor_image.copy(), (self.target_size_x * 2, self.target_size_y * 2)) # 放大已经被批注的图像
     self.visualize_process("Color Detect", detectColor_image2)
@@ -69,11 +82,10 @@ def detect_colors(self):
 
     # 断点
     #cv2.waitKey()
-
     return
 
-def classify_color(self, color):
-    """根据颜色代码判断颜色类别（红色、蓝色、绿色、黑色）。"""
+def classify_color(self, color): 
+    """输入hsv序列，输出对应颜色字符"""
     
     h, s, v = color
 

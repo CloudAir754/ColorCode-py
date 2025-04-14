@@ -35,5 +35,5 @@ def copy_py_to_txt(folder_path):
 
 if __name__ == "__main__":
     # 指定文件夹路径
-    folder_path = "./Application/"
+    folder_path = "./ColorCodeDetector/"
     copy_py_to_txt(folder_path)
