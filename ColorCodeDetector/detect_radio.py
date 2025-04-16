@@ -5,7 +5,9 @@ import numpy as np
 def detect_stretch_ratio(self):
     """检测拉伸比率，并检查波动是否过大。"""
     if not self.contours_ordered:
-        print("没有检测到有效的四边形，无法计算拉伸比率。")
+        self.Status += "No valid contours_ordered [detec_radio.py]" 
+        if self.show_steps:
+            print("没有检测到有效的四边形，无法计算拉伸比率。")
         return 
     
     ratios = []
@@ -27,7 +29,12 @@ def detect_stretch_ratio(self):
     for i, ratio in enumerate(ratios):
         deviation = abs(ratio - mean_ratio) / mean_ratio
         if deviation > self.HP_ts_radio:
-            print((f"第 {i+1} 个四边形的拉伸比率 {ratio:.2f} 与均值 {mean_ratio:.2f} 的差异超过阈值 {self.HP_ts_radio*100:.0f}%。"))
+            Error_info = (f"第 {i+1} 个四边形的拉伸比率 {ratio:.2f} \
+                          与均值 {mean_ratio:.2f} 的差异超过阈值 \
+                            {self.HP_ts_radio*100:.0f}%。")# 太长了……
+            self.Status += Error_info
+            if self.show_steps:
+                print(Error_info)
 
     
     self.radio_stretch = mean_ratio
