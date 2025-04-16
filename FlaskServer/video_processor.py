@@ -32,6 +32,7 @@ def process_video(video_path):
         ret, frame = cap.read()
         # 读取一帧，ret 为布尔值（是否成功读取），frame 为图像帧。
         # TODO 以后如果要处理的话，主要就是对frame下手
+        # frame 里面是纯粹的三维数组
         if not ret:
             break
 
