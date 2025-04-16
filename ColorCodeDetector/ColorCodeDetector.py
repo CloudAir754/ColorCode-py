@@ -13,9 +13,15 @@ time_start = 0  # 程序开始
 time_end =0     # 程序结束
 
 class ColorCodeDetector:
-    def __init__(self, image_path):
+    def __init__(self, image_path,pathSwtich=True):
+        # pathSwitch 为True时，视其为路径；否则，视其为图片数组
+
         # 初始化图像路径并加载图像
-        self.image = cv2.imread(image_path)
+        if pathSwtich:
+            self.image = cv2.imread(image_path)
+        else:
+            self.image = image_path
+
         if self.image is None:
             raise ValueError("图像加载失败，请检查文件路径")
                  
@@ -36,7 +42,7 @@ class ColorCodeDetector:
         self.radio_stretch = 0.1  # 拉伸参数
 
         # 控制开关
-        self.show_steps = True  # 控制是否显示处理步骤
+        self.show_steps = False  # 控制是否显示处理步骤
         self.steps_fig = 0
         self.show_details = False # 展示hsv
 

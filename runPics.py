@@ -3,11 +3,11 @@ import time
 
 from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
 
-def analyzeSingle(PicPath):
+def analyzeSingle(PicPath,pathSwtich=True):
     time_start = time.time()
 
     # v0.3 之后，只需要导入图片
-    detector = ColorCodeDetector(PicPath) # __init__
+    detector = ColorCodeDetector(PicPath,pathSwtich=pathSwtich) # __init__
 
     result = detector.analyze()
     time_end = time.time()

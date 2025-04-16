@@ -2,6 +2,7 @@ import cv2
 import os
 from datetime import datetime
 import json
+from runPics import analyzeSingle
 
 def process_video(video_path):
     # 确保 out 文件夹存在
@@ -35,6 +36,8 @@ def process_video(video_path):
         # frame 里面是纯粹的三维数组
         if not ret:
             break
+
+        result = analyzeSingle(frame,False)
 
         frame_count += 1
 
