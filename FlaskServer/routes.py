@@ -24,13 +24,16 @@ def init_routes(app):
             temp_file_path = temp_file.name
 
         # 处理视频        
-        process_video(temp_file_path)
+        returnJson = process_video(temp_file_path)
 
         # 删除临时文件
         print(temp_file_path)
         # os.remove(temp_file_path)
 
-        return jsonify({"message": "Video processed successfully"}), 200
+        return jsonify({
+            "message": "Video processed successfully",
+            "Result":returnJson 
+            }), 200
     
     # 新增测试端口
     @app.route('/ping', methods=['GET'])

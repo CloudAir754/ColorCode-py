@@ -1,6 +1,7 @@
 import cv2
 import os
 from datetime import datetime
+import json
 
 def process_video(video_path):
     # 确保 out 文件夹存在
@@ -24,8 +25,8 @@ def process_video(video_path):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
+    frame_count_all = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count_all}")
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -52,3 +53,5 @@ def process_video(video_path):
         cv2.imwrite(frame_path, frame)
 
     cap.release()
+
+    return {"Infodddddddd":"2332432423423432432423"}
