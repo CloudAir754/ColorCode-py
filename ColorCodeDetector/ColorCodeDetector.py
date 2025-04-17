@@ -44,7 +44,7 @@ class ColorCodeDetector:
         self.radio_stretch = 0.1  # 拉伸参数
 
         # 控制开关
-        self.show_steps = True  # 控制是否显示处理步骤
+        self.show_steps = False  # 控制是否显示处理步骤
         self.steps_fig = 0
         self.show_details = False # 展示hsv
         self.Status = "Success" # 默认成功

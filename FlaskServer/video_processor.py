@@ -3,9 +3,14 @@ import os
 from datetime import datetime
 import json
 from runPics import analyzeSingle
+import time
 
 def process_video(video_path):
     # 确保 out 文件夹存在
+    
+    # 计算时间
+    start_time01 = time.time()
+
     out_folder = os.path.join(os.getcwd(), "out")
     if not os.path.exists(out_folder):
         os.makedirs(out_folder)
@@ -29,6 +34,9 @@ def process_video(video_path):
     frame_count_all = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count_all}")
 
+    # 计算一下并行计算需要的时间
+    start_time02 = time.time()
+
     while cap.isOpened():
         ret, frame = cap.read()
         # 读取一帧，ret 为布尔值（是否成功读取），frame 为图像帧
@@ -37,6 +45,7 @@ def process_video(video_path):
             break
 
         result = analyzeSingle(frame,False) # 如何存储和分析
+        
 
         frame_count += 1
 
@@ -56,5 +65,9 @@ def process_video(video_path):
         cv2.imwrite(frame_path, frame)
 
     cap.release()
+    end_time = time.time()
+    print(f"从函数开始到函数结束，耗时：{end_time-start_time01}")   # 15.8
+    print(f"批量图片处理（串行）耗时{end_time-start_time02}")      # 15.7
 
-    return {"Infodddddddd":"2332432423423432432423"}
+
+    return {"time":f"{end_time-start_time02}"}
