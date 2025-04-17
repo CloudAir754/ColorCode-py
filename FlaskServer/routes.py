@@ -23,8 +23,8 @@ def init_routes(app):
             file.save(temp_file.name)
             temp_file_path = temp_file.name
 
-        # 处理视频        
-        process_video(temp_file_path)
+        # 处理视频（先暂时屏蔽）        
+        # process_video(temp_file_path)
 
         # 删除临时文件
         print(temp_file_path)
