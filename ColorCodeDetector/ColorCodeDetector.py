@@ -120,7 +120,7 @@ class ColorCodeDetector:
         if self.Status == "Success":
             return {
                 "Status":"Success",
-                "color_matrix": self.final_codes,
+                "color_matrix": [self.final_codes[i*3:(i+1)*3] for i in range(3)],
                 "stretch_ratio": self.radio_stretch,
                 "Block_Counts":self.BlockCount                
             }

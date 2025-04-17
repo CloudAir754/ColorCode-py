@@ -22,8 +22,7 @@ if __name__ == "__main__":
     if result.get('Status') == 'Success':
         print("识别结果：")
         color_out = result.get('color_matrix', [])
-        for i in range(0, len(color_out), 3):
-            print(color_out[i:i+3])  # 每行输出3个元素
+        print(color_out)
 
         print(f"拉伸比例：{result.get('stretch_ratio'):.2f}")
         
