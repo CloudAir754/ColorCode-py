@@ -94,7 +94,7 @@ def locate_nine(self):
     
     # 检查是否有绿色对角线
     if not hasattr(self, 'green_diagonals') or not self.green_diagonals:
-        self.status += "No Green_digaonals[diagnal_postion]"
+        self.Status += "No Green_digaonals[diagnal_postion]"
         if self.show_steps:
             print("[WARN] 没有检测到绿色对角线")
         return
