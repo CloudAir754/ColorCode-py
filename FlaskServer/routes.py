@@ -24,6 +24,9 @@ upload_status = defaultdict(dict)
 # 线程锁，保证线程安全
 upload_lock = threading.Lock()
 
+# 存储任务状态（模拟）
+task_status = {}
+
 def init_routes(app):
     @app.route('/upload', methods=['POST'])
     def upload_video():
@@ -89,8 +92,19 @@ def init_routes(app):
                 print(f"File merged successfully at {final_path}")
                 
                 # 生成任务ID
-                task_id = str(uuid.uuid4())
+                task_id = file_id #str(uuid.uuid4())
                 print(f"Video processing task created, task_id: {task_id}")
+
+                task_status[task_id] = {
+                    'status': 'completed',
+                    'result': {
+                        'video_url': f'/processed/{task_id}.mp4',
+                        'duration': '123',
+                        'size': '321',
+                        'info': 'TestInfo'
+                    }
+                }
+
                 return jsonify({
                     "message": "Video uploaded and merged successfully",
                     "task_id": task_id,
@@ -106,7 +120,26 @@ def init_routes(app):
             "total_chunks": total_chunks
         }), 200
         
-    
+
+
+    @app.route('/check_status/<task_id>', methods=['GET'])
+    def check_status(task_id):
+        """检查任务处理状态"""
+       
+        # 返回当前状态
+        if task_status[task_id]['status'] == 'completed':
+            return jsonify({
+                'status': 'completed',
+                'result': task_status[task_id]['result']
+            }), 200
+        else:
+            return jsonify({
+                'status': 'processing',
+                'message': 'Video is still being processed'
+            }), 202
+
+
+
     # 新增测试端口
     @app.route('/ping', methods=['GET'])
     def ping():
