@@ -9,6 +9,7 @@ import time
 def init_routes(app):
     @app.route('/upload', methods=['POST'])
     def upload_video():
+        start_time1 = time.time()
         
         if 'file' not in request.files:
             return jsonify({"error": "No file part"}), 400
@@ -23,12 +24,17 @@ def init_routes(app):
             file.save(temp_file.name)
             temp_file_path = temp_file.name
 
+        start_time2 = time.time()
         # 处理视频（先暂时屏蔽）        
         # process_video(temp_file_path)
-
+        start_time3 = time.time()
         # 删除临时文件
         print(temp_file_path)
         # os.remove(temp_file_path)
+
+        print(f"上传时间？{start_time2-start_time1}")
+        print(f"处理时间 {start_time3-start_time2}")
+
 
         return jsonify({"message": "Video processed successfully"}), 200
     
