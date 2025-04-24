@@ -18,6 +18,8 @@ received_chunks = defaultdict(set)
 
 from collections import defaultdict
 import threading
+import random
+from threading import Thread
 
 # 存储每个文件ID的上传状态
 upload_status = defaultdict(dict)
@@ -95,15 +97,19 @@ def init_routes(app):
                 task_id = file_id #str(uuid.uuid4())
                 print(f"Video processing task created, task_id: {task_id}")
 
-                task_status[task_id] = {
-                    'status': 'completed',
-                    'result': {
-                        'video_url': f'/processed/{task_id}.mp4',
-                        'duration': '123',
-                        'size': '321',
-                        'info': 'TestInfo'
-                    }
-                }
+                # 启动后台线程处理任务
+                thread = Thread(target=process_task, args=(task_id,))
+                thread.start()
+
+                # task_status[task_id] = {
+                #     'status': 'completed',
+                #     'result': {
+                #         'video_url': f'/processed/{task_id}.mp4',
+                #         'duration': '123',
+                #         'size': '321',
+                #         'info': f'TestInfo{task_id}'
+                #     }
+                # }
 
                 return jsonify({
                     "message": "Video uploaded and merged successfully",
@@ -121,22 +127,73 @@ def init_routes(app):
         }), 200
         
 
+    def process_task(task_id):
+        """模拟长时间运行的任务处理"""
+        # 随机生成处理时间（3-10秒）
+        processing_time = random.randint(5, 10)
+        time.sleep(processing_time)
+
+        print("已生成数据")
+        
+        task_status[task_id] = {
+            'status': 'completed',
+            'result': {
+                'duration': '123',
+                'info': f'TestInfo{task_id}'
+            }
+        }
+
+        return
+
+
 
     @app.route('/check_status/<task_id>', methods=['GET'])
     def check_status(task_id):
-        """检查任务处理状态"""
-       
-        # 返回当前状态
-        if task_status[task_id]['status'] == 'completed':
+
+        # 检查任务是否存在
+        if task_id not in task_status:
             return jsonify({
-                'status': 'completed',
-                'result': task_status[task_id]['result']
-            }), 200
-        else:
-            return jsonify({
-                'status': 'processing',
-                'message': 'Video is still being processed'
+                'status': '[Error]Task not found',
+                'error': 'Task not found',
+                'message': f'No task found with ID {task_id}'
             }), 202
+        
+            # 获取任务状态（确保线程安全）
+        with upload_lock:
+            status_info = task_status.get(task_id, {})
+            
+            # 检查状态是否有效
+            if not status_info or 'status' not in status_info:
+                return jsonify({
+                    'status': '[Error] Invalid task status',
+                    'error': 'Invalid task status',
+                    'message': 'Task exists but status information is invalid'
+                }), 202
+            
+            # 返回当前状态
+            if status_info['status'] == 'completed':
+                return jsonify({
+                    'status': 'completed',
+                    'result': status_info.get('result', {}),
+                    'message': 'Video processing completed'
+                }), 200
+            else:
+                return jsonify({
+                    'status': 'processing',
+                    'message': 'Video is still being processed',
+                }), 202
+
+        # # 返回当前状态
+        # if task_status[task_id]['status'] == 'completed':
+        #     return jsonify({
+        #         'status': 'completed',
+        #         'result': task_status[task_id]['result']
+        #     }), 200
+        # else:
+        #     return jsonify({
+        #         'status': 'processing',
+        #         'message': 'Video is still being processed'
+        #     }), 202
 
 
 

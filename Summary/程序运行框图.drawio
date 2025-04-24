@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="3458" dy="-7525" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3702" dy="-7360" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -574,10 +574,7 @@
           </mxCell>
         </UserObject>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-13" value="uploadVideo" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3750" y="8488" width="170" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-14" value="上传文件入口&lt;div&gt;1. 检查网络状态；若网络差，则取消上传&lt;/div&gt;&lt;div&gt;2.生成短名字&lt;/div&gt;&lt;div&gt;3。 轮询（文件锁定问题）==》performUpload&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4000" y="8464" width="500" height="110" as="geometry" />
+          <mxGeometry x="3722" y="8500" width="170" height="60" as="geometry" />
         </mxCell>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-17" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;fillColor=#EA6B66;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -585,63 +582,65 @@
             <mxPoint x="3710" y="8528" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-18" value="showResponseDialog" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4670" y="8889" width="170" height="60" as="geometry" />
-        </mxCell>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-20" value="showToast" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4570" y="8431" width="170" height="60" as="geometry" />
+          <mxGeometry x="4420" y="9057" width="170" height="60" as="geometry" />
         </mxCell>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-21" value="generateShortFileName" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4570" y="8596.5" width="170" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-22" value="performUpload" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3760" y="8698" width="170" height="60" as="geometry" />
+          <mxGeometry x="4410" y="9157.5" width="170" height="60" as="geometry" />
         </mxCell>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-24" value="用于在主线程显示Toast信息" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4770" y="8420" width="310" height="81" as="geometry" />
+          <mxGeometry x="4620" y="9046" width="310" height="81" as="geometry" />
         </mxCell>
         <mxCell id="u9qdrVfDTcjfBNtwnXKc-25" value="生成短文件名" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="4780" y="8587" width="310" height="81" as="geometry" />
+          <mxGeometry x="4620" y="9148" width="310" height="81" as="geometry" />
         </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-26" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+        <mxCell id="u9qdrVfDTcjfBNtwnXKc-28" value="文件分片上传执行体&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;1. 创建线程池（并发上传）；设置追踪量跟踪上传完成的量；&lt;/div&gt;&lt;div&gt;设置成功计数器（原子操作）&lt;/div&gt;&lt;div&gt;2. 遍历所有分片&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;2.1 计算分片字节起始，读取对应分片到缓存区&lt;/div&gt;&lt;div&gt;2.2 创建临时文件&lt;/div&gt;&lt;div&gt;2.3 创建上传表单（文件，分片编号，总分片数，文件ID，原始文件名）&lt;/div&gt;&lt;div&gt;2.4 构建HTTP请求&lt;/div&gt;&lt;div&gt;2.5 执行上传请求，响应服务器相应（最后一个分片，读取任务ID）&lt;/div&gt;&lt;div&gt;2.6 等待所有分片上传完成，关闭线程池（五分钟）&lt;/div&gt;&lt;div&gt;2.7 弹窗显示任务ID&lt;/div&gt;&lt;div&gt;2.8 弹窗按钮，开始视频分析&lt;/div&gt;&lt;div&gt;2.9 轮询pollTaskStatus&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3930" y="8784" width="500" height="262" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-9" value="上传文件入口&lt;div&gt;1直接调用internalUploadVideo&lt;br&gt;&lt;/div&gt;&lt;div&gt;这样设计的出发点是不修改外界回调的接口样式&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3940" y="8479" width="500" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-10" value="internalUploadVideo" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3722" y="8683" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-11" value="内部上传函数（返回成功状态和任务ID）&lt;div&gt;&lt;div&gt;1. 检查网络状态；若网络差，则取消上传&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;2.&amp;nbsp; 轮询（文件锁定问题）==》performUpload&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;3.生成短名字&lt;/div&gt;&lt;div&gt;4. 计算分片数量&lt;/div&gt;&lt;div&gt;5. 将整个视频传给uploadChunks&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3930" y="8648" width="500" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-12" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="4430" y="8528" as="sourcePoint" />
-            <mxPoint x="4540" y="8617" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="4480" y="8528" />
-              <mxPoint x="4480" y="8617" />
-            </Array>
+            <mxPoint x="3806.57" y="8589" as="sourcePoint" />
+            <mxPoint x="3806.9900000000002" y="8657" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-27" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-13" value="&lt;div&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&lt;b&gt;配置&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;CHUNK_SIZE 分片大小 20M&lt;/div&gt;&lt;div&gt;MAX_CONCURRENT_UPLOADS 最大并发上传数 3&lt;/div&gt;&lt;div&gt;FILE_LOCK_CHECK_INTERVAL 文件锁定检查 1.5s&lt;/div&gt;&lt;div&gt;OkhttpClinet 连接超时30s，读写超时60s&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+          <mxGeometry x="4490" y="8497" width="340" height="246" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-14" value="uploadChunks" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3722" y="8828" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mlLWPmJhPJWkWJjQ7v5h-15" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="3834.58" y="8560.5" as="sourcePoint" />
-            <mxPoint x="3835" y="8680" as="targetPoint" />
+            <mxPoint x="3806.71" y="8750" as="sourcePoint" />
+            <mxPoint x="3807.13" y="8818" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="u9qdrVfDTcjfBNtwnXKc-28" value="文件上传执行体&lt;div&gt;1. 取得URL和短名字&lt;/div&gt;&lt;div&gt;2. 构建requestBody，添加视频路径字段&lt;/div&gt;&lt;div&gt;3. 构建post请求&lt;/div&gt;&lt;div&gt;4. 异步执行上传请求&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3995" y="8660.5" width="500" height="110" as="geometry" />
+        <mxCell id="dWfoTecTMaSWC3sCdZ0_-11" value="pollTaskStatus" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3722" y="9250" width="170" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-9" value="onFailure" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="4070" y="8784" width="170" height="60" as="geometry" />
+        <mxCell id="dWfoTecTMaSWC3sCdZ0_-12" value="轮询以获取处理结果&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;1. 拼装请求URL&lt;/div&gt;&lt;div&gt;2. 构建get请求&lt;/div&gt;&lt;div&gt;3.发起请求&lt;/div&gt;&lt;div&gt;3.1 失败但未达到max次数，间隔interval时间，调用doPoll()&lt;br&gt;&lt;div&gt;3.2 有响应，以json读取response，查status信息&lt;/div&gt;&lt;div&gt;3.2.1 completed -&amp;gt; 停止轮询，并showResultDialog(“result”)&lt;/div&gt;&lt;div&gt;3.2.2 再次轮询&lt;/div&gt;&lt;div&gt;3.2.2 抛异常了，提示状态解析错误&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3920" y="9188" width="500" height="182" as="geometry" />
         </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-10" value="onResponse" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="4060" y="8878" width="170" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-11" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="4010" y="8786" width="20" height="149" as="geometry" />
-        </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-12" value="在10s内无收到任何响应则回调此报错函数" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="4290" y="8778" width="280" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-13" value="有任何响应&lt;div&gt;1. 获取状态码、响应体&lt;/div&gt;&lt;div&gt;2. 在终端和日志导出响应体&lt;/div&gt;&lt;div&gt;3. 弹窗显示响应体&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="4290" y="8868" width="280" height="102" as="geometry" />
-        </mxCell>
-        <mxCell id="GHxtsGVrK9UDuV8tWXto-14" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="dWfoTecTMaSWC3sCdZ0_-13" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="4580" y="8918.72" as="sourcePoint" />
-            <mxPoint x="4650" y="8918.72" as="targetPoint" />
+            <mxPoint x="3806.41" y="8904" as="sourcePoint" />
+            <mxPoint x="3807" y="9220" as="targetPoint" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="dWfoTecTMaSWC3sCdZ0_-14" value="showResultDialog" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3722" y="9438" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dWfoTecTMaSWC3sCdZ0_-15" value="显示处理结果对话框&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;显示result中，duration,info信息&lt;br&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3930" y="9412" width="500" height="112" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
