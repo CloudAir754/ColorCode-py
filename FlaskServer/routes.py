@@ -101,15 +101,6 @@ def init_routes(app):
                 thread = Thread(target=process_task, args=(task_id,))
                 thread.start()
 
-                # task_status[task_id] = {
-                #     'status': 'completed',
-                #     'result': {
-                #         'video_url': f'/processed/{task_id}.mp4',
-                #         'duration': '123',
-                #         'size': '321',
-                #         'info': f'TestInfo{task_id}'
-                #     }
-                # }
 
                 return jsonify({
                     "message": "Video uploaded and merged successfully",
@@ -183,19 +174,6 @@ def init_routes(app):
                     'message': 'Video is still being processed',
                 }), 202
 
-        # # 返回当前状态
-        # if task_status[task_id]['status'] == 'completed':
-        #     return jsonify({
-        #         'status': 'completed',
-        #         'result': task_status[task_id]['result']
-        #     }), 200
-        # else:
-        #     return jsonify({
-        #         'status': 'processing',
-        #         'message': 'Video is still being processed'
-        #     }), 202
-
-
 
     # 新增测试端口
     @app.route('/ping', methods=['GET'])
@@ -209,5 +187,4 @@ def init_routes(app):
         }
         response["response_time"] = time.time() - start_time
         return jsonify(response)
-    
     
