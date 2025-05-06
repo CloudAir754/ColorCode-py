@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="3716" dy="-7452" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="4231" dy="-7148" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -697,20 +697,41 @@
         <mxCell id="fwuAkV1fnzdil5QqzMT3-22" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;输入视频路径&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1. 读取视频，并打开 /out/&amp;lt;time&amp;gt;/ 的路径&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 调用 cv2.VideoCapture 进行拆帧；对象保存到cap&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 获取 长宽 fps frame-count 信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;4. 逐帧读取 cap.isOpened()；由cap.read()导出图像帧frame&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;5. 识别frame数组，得到result的json形态数组&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;6. 调用VideoProcessor类process_frame函数&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;7. 在图片左上角做标注&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;8. 保存被标注的图像到对应路径&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&lt;b&gt;&lt;u&gt;！！读取视频处理类的结果！！&lt;/u&gt;&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;返回 video_info lenth_time&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3342" y="10291.5" width="760" height="305.26" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-9" value="VideoProcessor类" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
-          <mxGeometry x="3080" y="10790" width="150" height="80" as="geometry" />
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-9" value="VideoProcessor类" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
+          <mxGeometry x="3060" y="11010" width="150" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-10" value="__inti__&lt;div&gt;初始化&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="3250" y="10680" width="150" height="60" as="geometry" />
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-10" value="__inti__&lt;div&gt;初始化&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3290" y="10740" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-11" value="determine_stage&lt;div&gt;判断当前阶段&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="3250" y="10780" width="150" height="60" as="geometry" />
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-11" value="determine_stage&lt;div&gt;判断当前帧阶段&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3280" y="10930" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-12" value="process_frame&lt;div&gt;处理每一帧&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="3240" y="10910" width="150" height="60" as="geometry" />
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-12" value="process_frame&lt;div&gt;处理每一帧&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3280" y="11380" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-13" value="get_transition_info&lt;div&gt;返回处理好的视频信息&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
-          <mxGeometry x="3230" y="11000" width="150" height="60" as="geometry" />
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-13" value="get_transition_info&lt;div&gt;返回处理好的视频信息&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3280" y="11140" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-9" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.stage 当前处理阶段的情况【-1初始化；0太亮；1全信息；2蓝消失；3红消失】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.prev_stage&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.stage_transitions 不同阶段的特征字典&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;prev_color_matrix&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;prev_stretch_ratio&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3487" y="10695" width="640" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-10" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1. 提取status，判断是否符合要求，识别失败【0】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 计算识别到的红、蓝色块数量&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 返回阶段信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;【蓝色0且有红，则2】、【红色0，则3】、【红+绿，则1】、【其余，0】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3487" y="10910" width="640" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-12" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;返回 self.stage_transitions&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;【字典 阶段号==={color_matrix,stretch_ratio,frame_info(包含帧号、时间)}】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3487" y="11122.5" width="640" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-13" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=5;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="3260" y="10780" as="sourcePoint" />
+            <mxPoint x="3260" y="11400" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="3230" y="11110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-14" value="&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3487" y="11350" width="640" height="150" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

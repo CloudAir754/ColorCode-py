@@ -25,9 +25,12 @@ class VideoProcessor:
         self.prev_stretch_ratio = None
     
     def determine_stage(self, result):
-        """根据分析结果确定当前阶段"""
+        """
+        根据分析结果确定当前阶段
+            result 是每个帧的识别信息json数组
+        """
         if result.get('Status') != 'Success':
-            return 0  # 第零阶段：太亮
+            return 0  # 第零阶段：太亮；或者太亮。反正是无效信息
         
         color_matrix = result.get('color_matrix', [])
         red_count = sum(row.count("Red") for row in color_matrix)
@@ -37,11 +40,17 @@ class VideoProcessor:
             return 2  # 第二阶段：蓝色消失
         elif red_count == 0:
             return 3  # 第三阶段：红色消失
+        elif red_count+blue_count == 6:#(9-3=6;最标准的一阶段)
+            return 1
         else:
-            return 1  # 第一阶段：全信息
+            return 0  # 第一阶段：全信息
     
     def process_frame(self, result, frame_info):
-        """处理每一帧的结果"""
+        """
+        处理每一帧的结果
+            result: 一个json数组，包含当前帧的信息
+            frame_info: 【字典】"frame_number" | "timestamp"        
+        """
         current_stage = self.determine_stage(result)
         
         # 如果阶段发生变化，记录转换信息
@@ -111,6 +120,7 @@ def process_video(video_path):
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
     lenth_time = frame_count / fps
 
+    processor = VideoProcessor()  # 创建处理器实例
 
 
     while cap.isOpened():
@@ -123,6 +133,7 @@ def process_video(video_path):
         frame_count += 1
         
         # 分析当前帧 - 直接使用导入的 analyzeSingle
+        # TODO 这里建议保存中间的标记图片
         result = analyzeSingle(frame, False)
         # result 是一个json数组，包含当前帧的信息
         
@@ -134,9 +145,10 @@ def process_video(video_path):
         
         # 处理分析结果
         # TODO 这个在下一个版本处理
-        # VideoProcessor.process_frame(result, frame_info)
+        processor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
+        # TODO 这里的图片保存，应该替换为单张标记后的照片
         text = f"Frame: {frame_count}"
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 1
@@ -150,7 +162,7 @@ def process_video(video_path):
         cv2.imwrite(frame_path, frame)
 
     cap.release()
-
+    video_info = processor.get_transition_info()
     return video_info,lenth_time
 
 
