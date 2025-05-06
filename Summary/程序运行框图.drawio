@@ -703,7 +703,7 @@
         <mxCell id="4eUyqlKq6pd890CQDcQJ-10" value="__inti__&lt;div&gt;初始化&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
           <mxGeometry x="3250" y="10680" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4eUyqlKq6pd890CQDcQJ-11" value="determine_stage" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="4eUyqlKq6pd890CQDcQJ-11" value="determine_stage&lt;div&gt;判断当前阶段&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
           <mxGeometry x="3250" y="10780" width="150" height="60" as="geometry" />
         </mxCell>
         <mxCell id="4eUyqlKq6pd890CQDcQJ-12" value="process_frame&lt;div&gt;处理每一帧&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
