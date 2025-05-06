@@ -98,7 +98,7 @@ def init_routes(app):
                 print(f"Video processing task created, task_id: {task_id}")
 
                 # 启动后台线程处理任务
-                thread = Thread(target=process_task, args=(task_id,))
+                thread = Thread(target=process_task, args=(task_id,final_path,))
                 thread.start()
 
 
@@ -118,19 +118,19 @@ def init_routes(app):
         }), 200
         
 
-    def process_task(task_id):
+    def process_task(task_id,video_path):
         """模拟长时间运行的任务处理"""
-        # 随机生成处理时间（3-10秒）
-        processing_time = random.randint(5, 10)
-        time.sleep(processing_time)
+
+        # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
+        video_info, video_time_lenth = process_video(video_path)
 
         print("已生成数据")
         
         task_status[task_id] = {
             'status': 'completed',
             'result': {
-                'duration': '123',
-                'info': f'TestInfo{task_id}'
+                'duration': f'{video_time_lenth}',
+                'info': f'{video_info}'
             }
         }
 

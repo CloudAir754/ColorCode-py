@@ -3,6 +3,9 @@ import os
 from datetime import datetime
 
 def process_video(video_path):
+
+    video_info = "这个是视频信息，占位"
+
     # 确保 out 文件夹存在
     out_folder = os.path.join(os.getcwd(), "out")
     if not os.path.exists(out_folder):
@@ -26,6 +29,7 @@ def process_video(video_path):
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
+    lenth_time = frame_count / fps
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -52,3 +56,7 @@ def process_video(video_path):
         cv2.imwrite(frame_path, frame)
 
     cap.release()
+   
+
+
+    return video_info,lenth_time
