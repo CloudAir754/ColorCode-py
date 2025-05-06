@@ -4,6 +4,18 @@ import time
 from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
 
 def analyzeSingle(PicPath,pathSwtich=True):
+    """
+    单张图片分析
+        PicPath: 图片路径/图片数组
+        pathSwtich: True路径 / False图片数组
+
+    返回：
+        "Status":"Success",
+        "color_matrix": 3*3数组,
+        "stretch_ratio": 拉伸比率,
+        "Block_Counts": 块数量            
+    """
+
     time_start = time.time()
 
     # v0.3 之后，只需要导入图片

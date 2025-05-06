@@ -111,7 +111,7 @@ def process_video(video_path):
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
     lenth_time = frame_count / fps
 
-    start_time = time.time()
+
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -122,16 +122,18 @@ def process_video(video_path):
         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         frame_count += 1
         
-        # # 分析当前帧 - 直接使用导入的 analyzeSingle
-        # result = analyzeSingle(frame, False)
+        # 分析当前帧 - 直接使用导入的 analyzeSingle
+        result = analyzeSingle(frame, False)
+        # result 是一个json数组，包含当前帧的信息
         
-        # # 设置当前帧信息
-        # frame_info = {
-        #     "frame_number": frame_count,
-        #     "timestamp": time.time() - start_time
-        # }
+        # 设置当前帧信息(帧序号，秒数)
+        frame_info = {
+            "frame_number": frame_count,
+            "timestamp": frame_count/fps
+        }
         
-        # # 处理分析结果
+        # 处理分析结果
+        # TODO 这个在下一个版本处理
         # VideoProcessor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
