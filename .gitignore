@@ -19,7 +19,7 @@ FlaskServer/__pycache__
 
 # 视频服务器的临时文件
 out/2025*
-
+out/tmp
 
 
 

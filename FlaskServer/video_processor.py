@@ -81,8 +81,11 @@ def process_video(video_path):
     """
     处理视频的主函数
     :param video_path: 视频文件路径
-    :return: 处理结果字典
+    :return: 处理结果字段video_info,原始视频长度lenth_time
     """
+    
+    video_info = "这个是视频信息，占位"
+
     # 确保 out 文件夹存在
     out_folder = os.path.join(os.getcwd(), "out")
     if not os.path.exists(out_folder):
@@ -99,8 +102,15 @@ def process_video(video_path):
     cap = cv2.VideoCapture(video_path)
     frame_count = 0
 
-    processor = VideoProcessor()
-    start_time = time.time()
+
+    # 获取视频属性
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
+    lenth_time = frame_count / fps
+
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -135,16 +145,9 @@ def process_video(video_path):
         cv2.imwrite(frame_path, frame)
 
     cap.release()
-    end_time = time.time()
 
-    # 获取阶段转换信息
-    transition_info = processor.get_transition_info()
-    
-    return {
-        "processing_time": end_time-start_time,
-        "stage_transitions": transition_info,
-        "output_folder": output_folder
-    }
+    return video_info,lenth_time
+
 
 if __name__ == "__main__":
     # 测试视频路径
@@ -157,3 +160,4 @@ if __name__ == "__main__":
         result = process_video(test_video)
         print("\n处理结果:")
         print(json.dumps(result, indent=2))
+
