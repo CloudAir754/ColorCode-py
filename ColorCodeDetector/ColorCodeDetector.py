@@ -9,15 +9,24 @@ from .detect_radio import detect_stretch_ratio
 from .visualize_part import visualize_process , visualization_detect_contours
 from .diagonal_postion import detect_green_diagonals,locate_nine
 
-time_start = 0  # 程序开始
-time_end =0     # 程序结束
 
 class ColorCodeDetector:
-    def __init__(self, image_path):
+    def __init__(self, image_path,pathSwtich=True):
+        """
+        image_path : 图像路径/图像数组
+        pathSwitch : True 读路径    |||   False  读图像数组
+        """
+        # pathSwitch 为True时，视其为路径；否则，视其为图片数组
+
         # 初始化图像路径并加载图像
-        self.image = cv2.imread(image_path)
+        if pathSwtich:
+            self.image = cv2.imread(image_path)
+        else:
+            self.image = image_path
+
         if self.image is None:
-            raise ValueError("图像加载失败，请检查文件路径")
+            raise KeyError("NO PIC FOUND") # 直接中止（没有图片-->恶性错误）
+
                  
         # 图片
         self.Sized_img = None  # 图像大小拉伸后
@@ -36,9 +45,11 @@ class ColorCodeDetector:
         self.radio_stretch = 0.1  # 拉伸参数
 
         # 控制开关
-        self.show_steps = True  # 控制是否显示处理步骤
+        self.show_steps = False  # 控制是否显示处理步骤
         self.steps_fig = 0
         self.show_details = False # 展示hsv
+        self.Status = "Success" # 默认成功
+        self.BlockCount = 1 # 识别到的方块（不作为调参时的依据，因为过亮且面积合适的边缘也可能会识别为方块）
 
         # 参数配置
         self.target_size_x = 225  # 标准处理尺寸 225
@@ -107,11 +118,17 @@ class ColorCodeDetector:
         cv2.waitKey()
         cv2.destroyAllWindows()
         
-        
-        return {
-            "Status":"Success",
-            "color_matrix": self.final_codes,
-            "stretch_ratio": self.radio_stretch,
-            
-        }
+        if self.Status == "Success":
+            return {
+                "Status":"Success",
+                "color_matrix": [self.final_codes[i*3:(i+1)*3] for i in range(3)],
+                "stretch_ratio": self.radio_stretch,
+                "Block_Counts":self.BlockCount                
+            }
+        else:
+            return {
+                "Status":"Error",
+                "Error_info":self.Status,
+                "Block_Counts":self.BlockCount,            
+            }
     
