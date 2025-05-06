@@ -9,11 +9,13 @@ from .detect_radio import detect_stretch_ratio
 from .visualize_part import visualize_process , visualization_detect_contours
 from .diagonal_postion import detect_green_diagonals,locate_nine
 
-time_start = 0  # 程序开始
-time_end =0     # 程序结束
 
 class ColorCodeDetector:
     def __init__(self, image_path,pathSwtich=True):
+        """
+        image_path : 图像路径/图像数组
+        pathSwitch : True 读路径    |||   False  读图像数组
+        """
         # pathSwitch 为True时，视其为路径；否则，视其为图片数组
 
         # 初始化图像路径并加载图像
@@ -23,9 +25,8 @@ class ColorCodeDetector:
             self.image = image_path
 
         if self.image is None:
-            raise KeyError("NO PIC FOUND") # 直接中止（恶性错误）
-            return {'Status':"Error",
-                    "Error_info":"Pics Not Found"}
+            raise KeyError("NO PIC FOUND") # 直接中止（没有图片-->恶性错误）
+
                  
         # 图片
         self.Sized_img = None  # 图像大小拉伸后

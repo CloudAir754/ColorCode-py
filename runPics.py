@@ -17,14 +17,15 @@ def analyzeSingle(PicPath,pathSwtich=True):
 
 if __name__ == "__main__":
     
-    result = analyzeSingle("./Sample/Sample-01/Sample-01-01.png")
+    result = analyzeSingle("./Sample/Sample-01/Sample-01-03.png")
 
     if result.get('Status') == 'Success':
         print("识别结果：")
         color_out = result.get('color_matrix', [])
         print(color_out)
-
         print(f"拉伸比例：{result.get('stretch_ratio'):.2f}")
+        print(f"识别到的块数量：{result.get('Block_Counts')}")
         
     else:
+        print("出错！")
         print(result.get('Error_info'))
