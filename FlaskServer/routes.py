@@ -118,6 +118,7 @@ def init_routes(app):
         }), 200
         
 
+
     def process_task(task_id,video_path):
         """模拟长时间运行的任务处理"""
 

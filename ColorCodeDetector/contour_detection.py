@@ -52,18 +52,14 @@ def detect_contours(self):
         valid_contours.append(cnt)
         quadrilaterals.append(box)
 
-
-    print("有效内接四边形个数：")
-    print(len(quadrilaterals))
+    self.BlockCount = len(quadrilaterals)
+    if self.show_steps:
+        # 当调试开关开启时，才对外输出（减少不必要的I/O）
+        print(f"有效内接四边形个数：{len(quadrilaterals)}")
 
     self.contours = valid_contours    
     self.quadrilaterals = quadrilaterals
     self.contours_ordered = self.sort_quad(quadrilaterals)  # 调用排序内部点
-
-
-    if len(quadrilaterals) != 9:
-        print("有效内接四边形不为9！！请检查超参数配置或检查图片")
-        cv2.waitKey()     
 
     return
 

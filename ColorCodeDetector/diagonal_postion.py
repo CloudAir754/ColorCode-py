@@ -8,7 +8,9 @@ def detect_green_diagonals(self):
     
     # 检查前置条件
     if not hasattr(self, 'Sized_img') or not self.contours_ordered:
-        print("[WARN] 缺少预处理图像或四边形数据")
+        self.Status += "Loss Size_img or No contours_ordered"
+        if self.show_steps:
+            print("[WARN] 缺少预处理图像或四边形数据")
         return
     
     # 获取已调整尺寸的图像
@@ -75,7 +77,9 @@ def detect_green_diagonals(self):
 
     # 验证是否找到三个绿色块
     if len(self.green_diagonals) != 3:
-        print(f"[WARN] 只找到{len(self.green_diagonals)}个绿色对角线色块")
+        self.Status += f"Only {len(self.green_diagonals)} Diagonals in Green Have Benn Found[diagnal_postion]"
+        if self.show_steps:
+            print(f"[WARN] 只找到{len(self.green_diagonals)}个绿色对角线色块")
     
     # 显示结果图像
     self.visualize_process("Green Diagonals Detection", img_diag)
@@ -90,7 +94,9 @@ def locate_nine(self):
     
     # 检查是否有绿色对角线
     if not hasattr(self, 'green_diagonals') or not self.green_diagonals:
-        print("[WARN] 没有检测到绿色对角线")
+        self.Status += "No Green_digaonals[diagnal_postion]"
+        if self.show_steps:
+            print("[WARN] 没有检测到绿色对角线")
         return
 
     # 初始化行列的边缘序列

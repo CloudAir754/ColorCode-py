@@ -1,4 +1,5 @@
-
+# 图片处理类
+__pycache__
 # 忽略图像处理类下的临时文件
 ColorCodeDetector/__pycache__
 ColorCodeDetector/txt
