@@ -10,7 +10,7 @@ from collections import defaultdict
 
 # 存储分片和任务信息的临时目录
 # 统一用 os.path.join 创建路径（兼容所有操作系统）
-UPLOAD_TEMP_DIR = os.path.join("out", "202504")
+UPLOAD_TEMP_DIR = os.path.join("out", "202505")
 os.makedirs(UPLOAD_TEMP_DIR, exist_ok=True)
 
 # 存储每个文件ID已接收的分片

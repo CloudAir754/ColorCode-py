@@ -111,25 +111,28 @@ def process_video(video_path):
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
     lenth_time = frame_count / fps
 
+    start_time = time.time()
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
+        # 添加旋转（假设所有视频都需要顺时针旋转90度）
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         frame_count += 1
         
-        # 分析当前帧 - 直接使用导入的 analyzeSingle
-        result = analyzeSingle(frame, False)
+        # # 分析当前帧 - 直接使用导入的 analyzeSingle
+        # result = analyzeSingle(frame, False)
         
-        # 设置当前帧信息
-        frame_info = {
-            "frame_number": frame_count,
-            "timestamp": time.time() - start_time
-        }
+        # # 设置当前帧信息
+        # frame_info = {
+        #     "frame_number": frame_count,
+        #     "timestamp": time.time() - start_time
+        # }
         
-        # 处理分析结果
-        processor.process_frame(result, frame_info)
+        # # 处理分析结果
+        # VideoProcessor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
         text = f"Frame: {frame_count}"
@@ -157,7 +160,8 @@ if __name__ == "__main__":
         print(f"测试视频文件 {test_video} 不存在")
     else:
         print("开始处理视频...")
-        result = process_video(test_video)
+        video_info, lenth_time = process_video(test_video)
         print("\n处理结果:")
-        print(json.dumps(result, indent=2))
+        print(f"视频信息：{video_info}")
+        print(f"视频长度：{lenth_time}")
 
