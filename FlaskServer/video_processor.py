@@ -15,15 +15,14 @@ except ImportError:
 class VideoProcessor:
     def __init__(self):
         self.stage = -1  # 当前阶段：-1=未初始化, 0=太亮, 1=全信息, 2=蓝色消失, 3=红色消失
-        self.prev_stage = -1
+        
         self.stage_transitions = {
             1: None,  # 第一阶段开始的信息
             2: None,  # 第二阶段开始的信息
             3: None   # 第三阶段开始的信息
         }
-        self.prev_color_matrix = None
-        self.prev_stretch_ratio = None
-    
+
+
     def determine_stage(self, result):
         """
         根据分析结果确定当前阶段
@@ -45,6 +44,7 @@ class VideoProcessor:
         else:
             return 0  # 第一阶段：全信息
     
+
     def process_frame(self, result, frame_info):
         """
         处理每一帧的结果
@@ -53,42 +53,28 @@ class VideoProcessor:
         """
         current_stage = self.determine_stage(result)
         
-        # 如果阶段发生变化，记录转换信息
-        if current_stage != self.stage:
-            self.prev_stage = self.stage
-            self.stage = current_stage
+        # 如果阶段《向下一阶段》发生变化，记录转换信息
+        if current_stage > self.stage:
+            
+            self.stage = current_stage # 更新当前状态
             
             # 记录阶段转换时的信息
             if current_stage in [1, 2, 3] and self.stage_transitions[current_stage] is None:
-                # 使用前一帧的信息（如果有），或者当前帧的信息
-                if self.prev_color_matrix is not None and self.prev_stretch_ratio is not None:
-                    self.stage_transitions[current_stage] = {
-                        "color_matrix": self.prev_color_matrix,
-                        "stretch_ratio": self.prev_stretch_ratio,
-                        "frame_info": frame_info
-                    }
-                elif result.get('Status') == 'Success':
-                    self.stage_transitions[current_stage] = {
-                        "color_matrix": result.get('color_matrix', []),
-                        "stretch_ratio": result.get('stretch_ratio'),
-                        "frame_info": frame_info
-                    }
-        
-        # 保存当前帧信息供下一帧使用
-        if result.get('Status') == 'Success':
-            self.prev_color_matrix = result.get('color_matrix', [])
-            self.prev_stretch_ratio = result.get('stretch_ratio')
-        else:
-            self.prev_color_matrix = None
-            self.prev_stretch_ratio = None
-    
+                # 落入这个逻辑，代表状态发生第一次改变                
+                self.stage_transitions[current_stage] = {
+                    "color_matrix": result.get('color_matrix', []),
+                    "stretch_ratio": result.get('stretch_ratio'),
+                    "frame_info": frame_info
+                }
+
+
     def get_transition_info(self):
         """获取阶段转换信息"""
         return self.stage_transitions
 
 def process_video(video_path):
     """
-    处理视频的主函数
+    处理视频的主函数（被route文件调用）
     :param video_path: 视频文件路径
     :return: 处理结果字段video_info,原始视频长度lenth_time
     """
@@ -144,7 +130,6 @@ def process_video(video_path):
         }
         
         # 处理分析结果
-        # TODO 这个在下一个版本处理
         processor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
