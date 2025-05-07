@@ -98,6 +98,13 @@ def locate_nine(self):
         if self.show_steps:
             print("[WARN] 没有检测到绿色对角线")
         return
+    
+    # 检测绿色对角线不足
+    if len(self.green_diagonals) != 3:
+        self.Status += f"No Enough Green_digaonals = {len(self.green_diagonals)}"
+        if self.show_steps:
+            print(f"[WARN] 绿色对角线个数不是3，我检测到：{len(self.green_diagonals)}")
+        return
 
     # 初始化行列的边缘序列
     row_boundaries = [] # 行 （上边界，下边界）
@@ -106,6 +113,7 @@ def locate_nine(self):
 
 
     for quad in self.green_diagonals:
+        # self.green_diagonals 是已经排好序的，左上到右下
         # 获取四边形的边界框
         x, y, w, h = cv2.boundingRect(quad)
         
@@ -125,7 +133,9 @@ def locate_nine(self):
     # 用来存储每个轮廓的行列编号
     contour_positions = []
     
+    print(len(self.contours_ordered))
     for quad in self.contours_ordered:
+        # self.contours_ordered 是内部排序的边框点集
         # 获取四边形的边界框
         x, y, w, h = cv2.boundingRect(quad)
         
@@ -139,8 +149,10 @@ def locate_nine(self):
         # 判断该中心点属于哪一行
         row = None
         for idx, (top_edge, bottom_edge) in enumerate(row_boundaries):
+            # row_boundaries是行的上下限，
             if top_edge <= center_y <= bottom_edge:
                 row = idx
+                # 当中心点不在绿色块框住的区域，则保留row为None
                 break
         
         # 判断该中心点属于哪一列
@@ -165,6 +177,9 @@ def locate_nine(self):
 
         # 将轮廓（contours_ordered的元素）放入对应的二维数组位置
     for idx, (row, col) in enumerate(contour_positions):
+        if row == None or col == None:
+            # 跳过当前格子，就当那个离群格子（无法定位）视为没有识别到
+            continue
         grid[row][col] = self.contours_ordered[idx]
 
     # grid 按照行/列 索引 外接四边形坐标

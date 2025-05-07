@@ -108,7 +108,7 @@ def process_video(video_path):
 
     processor = VideoProcessor()  # 创建处理器实例
 
-
+    frame_current = 0
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -116,7 +116,7 @@ def process_video(video_path):
 
         # 添加旋转（假设所有视频都需要顺时针旋转90度）
         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-        frame_count += 1
+        frame_current += 1
         
         # 分析当前帧 - 直接使用导入的 analyzeSingle
         # TODO 这里建议保存中间的标记图片
@@ -125,8 +125,8 @@ def process_video(video_path):
         
         # 设置当前帧信息(帧序号，秒数)
         frame_info = {
-            "frame_number": frame_count,
-            "timestamp": frame_count/fps
+            "frame_number": frame_current,
+            "timestamp": frame_current/fps
         }
         
         # 处理分析结果
@@ -134,7 +134,7 @@ def process_video(video_path):
         
         # 在图片上绘制帧序号
         # TODO 这里的图片保存，应该替换为单张标记后的照片
-        text = f"Frame: {frame_count}"
+        text = f"Frame: {frame_info}"
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 1
         font_color = (0, 255, 0)
@@ -143,7 +143,7 @@ def process_video(video_path):
         cv2.putText(frame, text, position, font, font_scale, font_color, thickness)
 
         # 将图片保存到时间命名的子文件夹中
-        frame_path = os.path.join(output_folder, f"frame_{frame_count}.jpg")
+        frame_path = os.path.join(output_folder, f"frame_{frame_current}.jpg")
         cv2.imwrite(frame_path, frame)
 
     cap.release()
