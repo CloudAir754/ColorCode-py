@@ -25,6 +25,8 @@ def analyzeSingle(PicPath,pathSwtich=True):
     result = detector.analyze()
     time_end = time.time()
     # print(f"程序识别耗时： {time_end - time_start } ")
+    print(result.get('color_matrix', []))
+    print(result.get('status', []))
 
     return result
 

@@ -13,15 +13,28 @@ except ImportError:
     from runPics import analyzeSingle
 
 class VideoProcessor:
-    def __init__(self):
-        self.stage = -1  # 当前阶段：-1=未初始化, 0=太亮, 1=全信息, 2=蓝色消失, 3=红色消失
-        
-        self.stage_transitions = {
-            1: None,  # 第一阶段开始的信息
-            2: None,  # 第二阶段开始的信息
-            3: None   # 第三阶段开始的信息
-        }
+    
+    # 定义阶段常量
+    STAGE_UNINITIALIZED = -1
+    STAGE_TOO_BRIGHT = 0
+    STAGE_FULL_INFO = 1
+    STAGE_BLUE_GONE = 2
+    STAGE_RED_GONE = 3
 
+    def __init__(self,stability_threshold=5):
+        """
+        初始化视频处理器
+        :param stability_threshold: 状态稳定所需的连续帧数
+        """
+        self.stage = self.STAGE_UNINITIALIZED
+        self.stage_transitions = {
+            self.STAGE_FULL_INFO: None,
+            self.STAGE_BLUE_GONE: None,
+            self.STAGE_RED_GONE: None
+        }
+        self.stability_threshold = stability_threshold
+        self.current_stage_candidate = None
+        self.candidate_streak = 0  # 当前候选状态连续出现的帧数
 
     def determine_stage(self, result):
         """
@@ -29,39 +42,46 @@ class VideoProcessor:
             result 是每个帧的识别信息json数组
         """
         if result.get('Status') != 'Success':
-            return 0  # 第零阶段：太亮；或者太亮。反正是无效信息
+            return self.STAGE_TOO_BRIGHT  # 第零阶段：太亮；或者太亮。反正是无效信息
         
         color_matrix = result.get('color_matrix', [])
         red_count = sum(row.count("Red") for row in color_matrix)
         blue_count = sum(row.count("Blue") for row in color_matrix)
         
         if blue_count == 0 and red_count > 0:
-            return 2  # 第二阶段：蓝色消失
+            return self.STAGE_BLUE_GONE  # 第二阶段：蓝色消失
         elif red_count == 0:
-            return 3  # 第三阶段：红色消失
+            return self.STAGE_RED_GONE  # 第三阶段：红色消失
         elif red_count+blue_count == 6:#(9-3=6;最标准的一阶段)
-            return 1
+            return self.STAGE_FULL_INFO
         else:
-            return 0  # 第一阶段：全信息
+            return self.STAGE_TOO_BRIGHT  # 第一阶段：全信息；或者是啥也没有
     
 
     def process_frame(self, result, frame_info):
         """
-        处理每一帧的结果
+        处理每一帧的结果b
             result: 一个json数组，包含当前帧的信息
             frame_info: 【字典】"frame_number" | "timestamp"        
         """
-        current_stage = self.determine_stage(result)
+        current_candidate = self.determine_stage(result)
         
-        # 如果阶段《向下一阶段》发生变化，记录转换信息
-        if current_stage > self.stage:
-            
-            self.stage = current_stage # 更新当前状态
-            
-            # 记录阶段转换时的信息
-            if current_stage in [1, 2, 3] and self.stage_transitions[current_stage] is None:
-                # 落入这个逻辑，代表状态发生第一次改变                
-                self.stage_transitions[current_stage] = {
+        # 如果当前候选状态与之前不同，重置计数器
+        if current_candidate != self.current_stage_candidate:
+            self.current_stage_candidate = current_candidate
+            self.candidate_streak = 1
+        else:
+            self.candidate_streak += 1
+
+        # 仅当候选状态连续出现足够帧数，并且是下一个合法状态时，才更新阶段
+        if (
+            self.candidate_streak >= self.stability_threshold
+            and current_candidate > self.stage  # 确保状态是递进的
+        ):
+            self.stage = current_candidate
+            # 记录阶段转换信息（如果是第一次进入该阶段）
+            if current_candidate in self.stage_transitions and self.stage_transitions[current_candidate] is None:
+                self.stage_transitions[current_candidate] = {
                     "color_matrix": result.get('color_matrix', []),
                     "stretch_ratio": result.get('stretch_ratio'),
                     "frame_info": frame_info
@@ -119,7 +139,7 @@ def process_video(video_path):
         frame_current += 1
         
         # 分析当前帧 - 直接使用导入的 analyzeSingle
-        # TODO 这里建议保存中间的标记图片
+
         result = analyzeSingle(frame, False)
         # result 是一个json数组，包含当前帧的信息
         
@@ -135,7 +155,7 @@ def process_video(video_path):
         processor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
-        # TODO 这里的图片保存，应该替换为单张标记后的照片
+
         text = f"Frame: {frame_info}"
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 1

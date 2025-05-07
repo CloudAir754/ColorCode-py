@@ -133,7 +133,7 @@ def locate_nine(self):
     # 用来存储每个轮廓的行列编号
     contour_positions = []
     
-    print(len(self.contours_ordered))
+    # print(len(self.contours_ordered))
     for quad in self.contours_ordered:
         # self.contours_ordered 是内部排序的边框点集
         # 获取四边形的边界框
