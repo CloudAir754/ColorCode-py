@@ -6,7 +6,7 @@ from .image_preprocessing import preprocess_image
 from .contour_detection import detect_contours, sort_quad
 from .color_detection import detect_colors, classify_color
 from .detect_radio import detect_stretch_ratio
-from .visualize_part import visualize_process , visualization_detect_contours
+from .visualize_part import visualize_process , visualization_detect_contours,summary_pic
 from .diagonal_postion import detect_green_diagonals,locate_nine
 
 
@@ -31,6 +31,10 @@ class ColorCodeDetector:
         # 图片
         self.Sized_img = None  # 图像大小拉伸后
         self.closed_img = None  # 图像(闭运算)
+
+        self.img_DebugView = None # 标注轮廓
+        self.img_ColorDetect = None # 颜色标注
+        self.pic_toSave = None# 最终保留的图片
 
         # 中间元素
         self.contours = []  # 轮廓 
@@ -92,6 +96,7 @@ class ColorCodeDetector:
         self.detect_stretch_ratio = detect_stretch_ratio.__get__(self)
         self.visualization_detect_contours = visualization_detect_contours.__get__(self)
         self.visualize_process = visualize_process.__get__(self)    
+        self.summary_pic = summary_pic.__get__(self)
 
         
         self.detect_green_diagonals = detect_green_diagonals.__get__(self)
@@ -114,6 +119,7 @@ class ColorCodeDetector:
         self.detect_colors()  # 颜色检测
         self.visualization_detect_contours()  # 可视化找色块 
 
+        self.summary_pic() # 图片保存逻辑
 
         cv2.waitKey()
         cv2.destroyAllWindows()
@@ -123,12 +129,14 @@ class ColorCodeDetector:
                 "Status":"Success",
                 "color_matrix": [self.final_codes[i*3:(i+1)*3] for i in range(3)],
                 "stretch_ratio": self.radio_stretch,
-                "Block_Counts":self.BlockCount                
+                "Block_Counts":self.BlockCount,
+                "pic_toSave" :self.pic_toSave
             }
         else:
             return {
                 "Status":"Error",
                 "Error_info":self.Status,
-                "Block_Counts":self.BlockCount,            
+                "Block_Counts":self.BlockCount,      
+                "pic_toSave" :self.pic_toSave      
             }
     
