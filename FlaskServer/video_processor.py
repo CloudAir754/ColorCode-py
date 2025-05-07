@@ -123,6 +123,8 @@ def process_video(video_path):
         result = analyzeSingle(frame, False)
         # result 是一个json数组，包含当前帧的信息
         
+        frame_tmp = result.get("pic_toSave")
+
         # 设置当前帧信息(帧序号，秒数)
         frame_info = {
             "frame_number": frame_current,
@@ -140,11 +142,11 @@ def process_video(video_path):
         font_color = (0, 255, 0)
         thickness = 2
         position = (50, 50)
-        cv2.putText(frame, text, position, font, font_scale, font_color, thickness)
+        cv2.putText(frame_tmp, text, position, font, font_scale, font_color, thickness)
 
         # 将图片保存到时间命名的子文件夹中
         frame_path = os.path.join(output_folder, f"frame_{frame_current}.jpg")
-        cv2.imwrite(frame_path, frame)
+        cv2.imwrite(frame_path, frame_tmp)
 
     cap.release()
     video_info = processor.get_transition_info()
