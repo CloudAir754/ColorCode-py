@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="2981" dy="-7887" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3531" dy="-7562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -126,7 +126,7 @@
           <mxGeometry x="-360" y="9438" width="541" height="68" as="geometry" />
         </mxCell>
         <mxCell id="cnEs0zNnc2Y4UcNPGsv1-5" value="&lt;div&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&lt;b&gt;返回内容result&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;Status&quot;：状态信息（Error/Success）&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;Error_info&quot;：错误信息，输出self.Status&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;成功时，输出的信息&lt;/div&gt;&lt;div&gt;&lt;div&gt;&quot;color_matrix&quot;：最终颜色序列。self.final_codes&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&quot;stretch_ratio&quot;：拉伸比。self.radio_stretch&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="2570" y="9570" width="350" height="213.5" as="geometry" />
+          <mxGeometry x="2560" y="9620" width="350" height="213.5" as="geometry" />
         </mxCell>
         <mxCell id="2" value="run.py&lt;div&gt;启动服务端&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="1800" y="8339" width="120" height="60" as="geometry" />
@@ -707,10 +707,10 @@
           <mxGeometry x="3280" y="10930" width="150" height="60" as="geometry" />
         </mxCell>
         <mxCell id="4eUyqlKq6pd890CQDcQJ-12" value="process_frame&lt;div&gt;处理每一帧&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3280" y="11380" width="150" height="60" as="geometry" />
+          <mxGeometry x="3290" y="11090" width="150" height="60" as="geometry" />
         </mxCell>
         <mxCell id="4eUyqlKq6pd890CQDcQJ-13" value="get_transition_info&lt;div&gt;返回处理好的视频信息&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3280" y="11140" width="150" height="60" as="geometry" />
+          <mxGeometry x="3290" y="11280" width="150" height="60" as="geometry" />
         </mxCell>
         <mxCell id="DEE2fzZIXsFCY4mL64z3-9" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.stage 当前处理阶段的情况【-1初始化；0太亮；1全信息；2蓝消失；3红消失】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.prev_stage&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;self.stage_transitions 不同阶段的特征字典&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3487" y="10720" width="640" height="105" as="geometry" />
@@ -718,8 +718,8 @@
         <mxCell id="DEE2fzZIXsFCY4mL64z3-10" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1. 提取status，判断是否符合要求，识别失败【0】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;2. 计算识别到的红、蓝色块数量&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;3. 返回阶段信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;【蓝色0且有红，则2】、【红色0，则3】、【红+绿，则1】、【其余，0】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3487" y="10910" width="640" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="DEE2fzZIXsFCY4mL64z3-12" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;返回 self.stage_transitions&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;【字典 阶段号==={color_matrix,stretch_ratio,frame_info(包含帧号、时间)}】&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3487" y="11122.5" width="640" height="95" as="geometry" />
+        <mxCell id="DEE2fzZIXsFCY4mL64z3-12" value="&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;0. 读取 self.stage_transitions&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;【字典 阶段号==={color_matrix,stretch_ratio,frame_info(包含帧号、时间)}】&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;1.打印&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-size: 15px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-size: 15px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;self.stage_transitions，原始信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;2.取第一阶段信息，调用_convert_name 转化为人名信息&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;3. 读取&lt;/span&gt;&lt;span style=&quot;font-size: 15px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;self.stage_transitions 转化为拉伸点和时间节点&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
+          <mxGeometry x="3495" y="11220" width="640" height="200" as="geometry" />
         </mxCell>
         <mxCell id="DEE2fzZIXsFCY4mL64z3-13" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=5;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -731,9 +731,9 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="DEE2fzZIXsFCY4mL64z3-14" value="1. 调用self.determine_stage 判断当前帧所处的阶段&lt;div&gt;2. 若当前帧的阶段 &amp;gt; self.stage ，则认为阶段前进&lt;/div&gt;&lt;div&gt;3. 阶段在123，且状态信息字典self.stage_transitions为空；则存新的值入字典&lt;/div&gt;&lt;div&gt;3.1 保存 color_matrix 九色块数组，stretch_ratio 拉伸量 frame_info 帧信息&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
-          <mxGeometry x="3495" y="11330" width="640" height="150" as="geometry" />
+          <mxGeometry x="3477" y="11060" width="640" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="UAPt1bauamt03Ichijur-9" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="UAPt1bauamt03Ichijur-9" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="2820" y="10700" as="sourcePoint" />
             <mxPoint x="3130" y="10420" as="targetPoint" />
@@ -743,7 +743,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="UAPt1bauamt03Ichijur-10" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="UAPt1bauamt03Ichijur-10" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="3330" y="10470" as="sourcePoint" />
             <mxPoint x="3220" y="11410" as="targetPoint" />
@@ -753,7 +753,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="UAPt1bauamt03Ichijur-11" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="UAPt1bauamt03Ichijur-11" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="3320" y="10500" as="sourcePoint" />
             <mxPoint x="3200" y="11170" as="targetPoint" />
@@ -763,11 +763,23 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="UAPt1bauamt03Ichijur-12" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;summary_pic&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;整合两个测试图像&lt;/span&gt;&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="UAPt1bauamt03Ichijur-12" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;summary_pic&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;整合两个测试图像&lt;/span&gt;&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="-1950" y="9290" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="UAPt1bauamt03Ichijur-13" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;在非空时，调整两个图片的大小&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;然后合并两个图片&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;保存到self.pic_toSave&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="UAPt1bauamt03Ichijur-13" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;在非空时，调整两个图片的大小&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;然后合并两个图片&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;保存到self.pic_toSave&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="-1610" y="9250" width="410" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="gAt3PytNU4Qikcz6FITD-10" value="_convert_name&lt;div&gt;将全亮信息转为人名&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3300" y="11500" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gAt3PytNU4Qikcz6FITD-12" value="1. 接收第一阶段图片数组&lt;div&gt;2. 提取关键6位置&lt;/div&gt;&lt;div&gt;3. 转化为二进制&lt;/div&gt;&lt;div&gt;4. 调用_generate_name_list ，输出到name_list为64个人名的人名列表&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3495.5" y="11470" width="640" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="gAt3PytNU4Qikcz6FITD-13" value="_generate_name_list&lt;div&gt;生成人名列表&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3290" y="11620" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gAt3PytNU4Qikcz6FITD-14" value="生成一个列表，是64个人名" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="3495.5" y="11620" width="640" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

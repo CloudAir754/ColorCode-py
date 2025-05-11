@@ -90,7 +90,78 @@ class VideoProcessor:
 
     def get_transition_info(self):
         """获取阶段转换信息"""
-        return self.stage_transitions
+        print("="*50)
+        print("原始信息如下：")
+        print(self.stage_transitions)
+        print("="*50)
+        # 重整输出内容
+        # 在这里添加人名转化逻辑
+        #  当第一阶段有数据时，转第一阶段数据为人名
+
+        if self.stage_transitions[1] is None:
+            print("未检出第一阶段内容")
+            return self.stage_transitions
+
+        time_1_picMatrix = self.stage_transitions[1]["color_matrix"]
+        name = self._convert_name(time_1_picMatrix)
+        stretchRatio_Time_list = {}
+        for stage, data in self.stage_transitions.items():
+            if data is not None:  # 检查是否有效（非None）
+                stretch_ratio = data["stretch_ratio"]
+                stretch_ratio = round(float(stretch_ratio), 2)
+                stretch_ratio = f"拉伸：{stretch_ratio}"
+                Time_now = data['frame_info']['timestamp']
+                Time_now = round(Time_now,3)
+                Time_now = f"时间点：{Time_now} 秒"
+                stretchRatio_Time_list[stage] = (stretch_ratio,Time_now)
+            else:
+                stretchRatio_Time_list[stage] = (None,None)
+        
+        # print(stretchRatio_Time_list)
+        # print(name)
+        # print("拉伸和事件信息")
+        change_info = f"姓名：{name} 拉伸信息：{stretchRatio_Time_list}"
+        print("*"*50)
+        print("整理后信息如下：")
+        print(self.stage_transitions)
+        print("*"*50)
+        return change_info
+        # 该函数的返回信息直接视为字符串
+
+    
+    def _convert_name(self, pic_info):
+        # 1. 提取关键颜色（6个位置）
+        key_positions = [
+            (0, 1), (0, 2),  # 第一行的第2、3个元素
+            (1, 0), (1, 2),  # 第二行的第1、3个元素
+            (2, 0), (2, 1)   # 第三行的第1、2个元素
+        ]
+        key_colors = [pic_info[i][j] for i, j in key_positions]
+
+        # 2. 将颜色转换为二进制码（Red=1, Blue=0）
+        binary_code = [1 if color == 'Red' else 0 for color in key_colors]
+        binary_str = ''.join(map(str, binary_code))  # 例如 "101010"
+
+        # 3. 映射到预定义的64个人名（这里用简化的方式生成）
+        name_index = int(binary_str, 2)  # 二进制转十进制（0-63）
+        name_list = self._generate_name_list()  # 生成64个人名
+        info_name = name_list[name_index]
+
+        return info_name
+
+    def _generate_name_list(self):
+        # 生成2^6=64个人名（示例：用字母组合）
+        first_names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank"]
+        last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson"]
+        
+        name_list = []
+        for i in range(64):
+            first = first_names[i % 8]
+            last = last_names[i // 8]
+            name_list.append(f"{first} {last}")
+        
+        return name_list
+
 
 def process_video(video_path):
     """

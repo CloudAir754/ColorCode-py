@@ -73,9 +73,9 @@ if __name__ == "__main__":
         print("当前目录中没有找到jpg图片")
     else:
         # 自定义参数
-        output_video = "output_video.mp4"
+        output_video = "Sample/output_video.mp4"
         frames_per_second = 30.0
-        image_duration = 1.0  # 每张图片显示3秒
+        image_duration = 1.5  # 每张图片显示3秒
         video_resolution = (1080, 1920)  # 720p分辨率
         
         print(f"将以下图片转换为视频: {image_files}")
