@@ -74,7 +74,8 @@ def detect_colors(self):
             # 绘制颜色提取区域
 
     detectColor_image2 = cv2.resize(detectColor_image.copy(), (self.target_size_x * 2, self.target_size_y * 2)) # 放大已经被批注的图像
-    self.visualize_process("Color Detect", detectColor_image2)
+    self.visualize_process("Color Detect", detectColor_image2) 
+    self.img_ColorDetect = detectColor_image2
 
     self.color_blocks = color_means
     self.final_codes = color_detects

@@ -10,9 +10,6 @@ def  visualize_process(self, title_showd, img_showed):
 
 def visualization_detect_contours(self):
     """最终识别成果，可视化"""
-    if not self.show_steps:
-        # 不执行该函数
-        return
     
     valid_contours = self.contours
     quadrilaterals = self.quadrilaterals
@@ -48,4 +45,25 @@ def visualization_detect_contours(self):
     
     contour_image2 = cv2.resize(contour_image, (self.target_size_x * 2, self.target_size_y * 2))
     self.visualize_process("Debug View", contour_image2)
+    self.img_DebugView = contour_image2 # 标注的轮廓
 
+
+def summary_pic(self):
+    temp_img = None
+    
+    # 确保两张图像都存在
+    if self.img_DebugView is not None and self.img_ColorDetect is not None:
+        # 统一调整尺寸（确保高度相同）
+        debug_img = cv2.resize(self.img_DebugView, (self.target_size_x *2, self.target_size_y*2))
+        color_img = cv2.resize(self.img_ColorDetect, (self.target_size_x*2, self.target_size_y*2))
+        
+        # 左右并排拼接（要求两张图像高度相同）
+        temp_img = cv2.hconcat([debug_img, color_img])
+    
+    # 如果只有一张图像存在，直接返回它（可选）
+    elif self.img_DebugView is not None:
+        temp_img = cv2.resize(self.img_DebugView, (self.target_size_x*2, self.target_size_y*2))
+    elif self.img_ColorDetect is not None:
+        temp_img = cv2.resize(self.img_ColorDetect, (self.target_size_x*2, self.target_size_y*2))
+    
+    self.pic_toSave = temp_img

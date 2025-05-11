@@ -13,7 +13,8 @@ def analyzeSingle(PicPath,pathSwtich=True):
         "Status":"Success",
         "color_matrix": 3*3数组,
         "stretch_ratio": 拉伸比率,
-        "Block_Counts": 块数量            
+        "Block_Counts": 块数量,
+        "pic_toSave": 图片数组
     """
 
     time_start = time.time()
@@ -24,6 +25,8 @@ def analyzeSingle(PicPath,pathSwtich=True):
     result = detector.analyze()
     time_end = time.time()
     # print(f"程序识别耗时： {time_end - time_start } ")
+    # print(result.get('color_matrix', []))
+    # print(result.get('status', []))
 
     return result
 
@@ -37,6 +40,9 @@ if __name__ == "__main__":
         print(color_out)
         print(f"拉伸比例：{result.get('stretch_ratio'):.2f}")
         print(f"识别到的块数量：{result.get('Block_Counts')}")
+        import cv2
+        cv2.imshow("DebugTerminal",result.get('pic_toSave') )
+        cv2.waitKey()
         
     else:
         print("出错！")
