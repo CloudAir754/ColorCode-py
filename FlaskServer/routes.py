@@ -73,6 +73,8 @@ def init_routes(app):
             upload_status[file_id]['received_chunks'].add(chunk_number)
             received_count = len(upload_status[file_id]['received_chunks'])
             
+            task_id = file_id # 从最后一片提出！避免获取不到task——id
+
             # 检查是否所有分片都已接收
             if received_count == total_chunks:
                 print(f"All chunks received for file {file_id}, merging...")
@@ -101,7 +103,9 @@ def init_routes(app):
                 thread = Thread(target=process_task, args=(task_id,final_path,))
                 thread.start()
 
-
+                # TODO 只有在最后一片才返回task_id
+                # 争议点，在于并行传输导致！
+                #   此处判断最后一片的方法，是判断分片量
                 return jsonify({
                     "message": "Video uploaded and merged successfully",
                     "task_id": task_id,
@@ -112,6 +116,7 @@ def init_routes(app):
         return jsonify({
             "message": "Chunk uploaded successfully",
             "chunk_number": chunk_number,
+            "task_id":task_id,
             "file_id": file_id,
             "received_chunks": received_count,
             "total_chunks": total_chunks
