@@ -1,9 +1,12 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
   <diagram name="第 1 页" id="X3MkfHMA-2dLpV_lL1O-">
-    <mxGraphModel dx="3531" dy="-7562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3356" dy="-7665" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-9" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=none;opacity=70;" vertex="1" parent="1">
+          <mxGeometry x="2930" y="10080" width="1420" height="1760" as="geometry" />
+        </mxCell>
         <mxCell id="fwuAkV1fnzdil5QqzMT3-10" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=none;opacity=70;" parent="1" vertex="1">
           <mxGeometry x="1563.5" y="10110.01" width="1323" height="1160" as="geometry" />
         </mxCell>
@@ -769,17 +772,32 @@
         <mxCell id="UAPt1bauamt03Ichijur-13" value="&lt;div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;在非空时，调整两个图片的大小&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;然后合并两个图片&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;保存到self.pic_toSave&lt;/span&gt;&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="-1610" y="9250" width="410" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="gAt3PytNU4Qikcz6FITD-10" value="_convert_name&lt;div&gt;将全亮信息转为人名&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="gAt3PytNU4Qikcz6FITD-10" value="_convert_name&lt;div&gt;将全亮信息转为人名&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3300" y="11500" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="gAt3PytNU4Qikcz6FITD-12" value="1. 接收第一阶段图片数组&lt;div&gt;2. 提取关键6位置&lt;/div&gt;&lt;div&gt;3. 转化为二进制&lt;/div&gt;&lt;div&gt;4. 调用_generate_name_list ，输出到name_list为64个人名的人名列表&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="gAt3PytNU4Qikcz6FITD-12" value="1. 接收第一阶段图片数组&lt;div&gt;2. 提取关键6位置&lt;/div&gt;&lt;div&gt;3. 转化为二进制&lt;/div&gt;&lt;div&gt;4. 调用_generate_name_list ，输出到name_list为64个人名的人名列表&lt;/div&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3495.5" y="11470" width="640" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="gAt3PytNU4Qikcz6FITD-13" value="_generate_name_list&lt;div&gt;生成人名列表&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="gAt3PytNU4Qikcz6FITD-13" value="_generate_name_list&lt;div&gt;生成人名列表&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3290" y="11620" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="gAt3PytNU4Qikcz6FITD-14" value="生成一个列表，是64个人名" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="gAt3PytNU4Qikcz6FITD-14" value="生成一个列表，是64个人名" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="1" vertex="1">
           <mxGeometry x="3495.5" y="11620" width="640" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-10" value="runServer.py" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="-2127" y="10743" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-11" value="FlaskServer" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="-2127" y="10850" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-12" value="import FlaskServer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-1958" y="10740" width="308" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-13" value="import ColorCodeDetector" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-1959" y="10850" width="308" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hAecsQhVaeBcMQIx_QQc-14" value="ColorCodeDetector" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="-2127" y="10950" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

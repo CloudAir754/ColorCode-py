@@ -11,24 +11,18 @@
 
 该程序分为两个部分==FLask服务端==（用于响应POST请求，接视频，发送帧给python程序）+==OpenCV on Python==(用于读取分析图片)
 
+# 运行方法
+## Python
+`python runServer.py`
+## 打包好的内容
+在release里面有`ColorServer.exe`，双击运行即可
 
 # Flask 服务端
-1. 接收安卓POST来的视频流
-2. 切分为一组单独的帧
-3. 将帧送入图像分析程序（考虑将这一组帧并行处理）
-3. 总结返回的图像分析信息（图片所属阶段等），解析后打包发回安卓端
-
-
-
-
-## 测试
-
-- `python runServer.py`
-
-```
-curl -X POST -F "file=@./Sample/trailer.mp4" http://localhost:5000/upload
-```
-用`curl`命令，以post方式，发送视频到指定路径
+1. 接收安卓POST来的视频流【可分片】
+2. 整合为视频保存到`out/202505`
+3. 将帧(二维数组)送入图像分析程序，返回解码信息（色块数组、拉伸量、帧信息、处理标注）
+4. 保存处理标注（包括色块定位、色块定色）到`out/{time}`
+5. 总结返回的图像分析信息（图片所属阶段等），解析后打包发回安卓端
 
 
 # 图像分析程序
@@ -41,10 +35,8 @@ curl -X POST -F "file=@./Sample/trailer.mp4" http://localhost:5000/upload
 7. 返回【5】+【6】
 
 
-## 运行
-- `python runPics.py`
 
-# Requirements(正在开发中，并不是最终结果)
+# Requirements
 ```
 pip freeze > requirements.txt
 # 获取所有软件包列表

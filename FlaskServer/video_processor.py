@@ -4,13 +4,9 @@ from datetime import datetime
 import time
 import json
 # 解决单独运行时模块导入问题
-try:
-    from runPics import analyzeSingle
-except ImportError:
-    # 如果是单独运行，尝试添加项目根目录到系统路径
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(project_root)
-    from runPics import analyzeSingle
+
+from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
+
 
 class VideoProcessor:
     
@@ -242,6 +238,34 @@ def process_video(video_path):
     cap.release()
     video_info = processor.get_transition_info()
     return video_info,lenth_time
+
+def analyzeSingle(PicPath,pathSwtich=True):
+    """
+    单张图片分析
+        PicPath: 图片路径/图片数组
+        pathSwtich: True路径 / False图片数组
+
+    返回：
+        "Status":"Success",
+        "color_matrix": 3*3数组,
+        "stretch_ratio": 拉伸比率,
+        "Block_Counts": 块数量,
+        "pic_toSave": 图片数组
+    """
+
+    time_start = time.time()
+
+    # v0.3 之后，只需要导入图片
+    detector = ColorCodeDetector(PicPath,pathSwtich=pathSwtich) # __init__
+
+    result = detector.analyze()
+    time_end = time.time()
+    # print(f"程序识别耗时： {time_end - time_start } ")
+    # print(result.get('color_matrix', []))
+    # print(result.get('status', []))
+
+    return result
+
 
 
 if __name__ == "__main__":

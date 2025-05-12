@@ -1,26 +1,22 @@
 import subprocess
 import os
+import shutil
 
 def delete_2025_files_and_folders():
     target_dir = "./out"  # 目标目录（可修改）
     
-    # 检查目录是否存在
-    if not os.path.exists(target_dir):
-        print(f"错误：目录 {target_dir} 不存在！")
-        return
-    
-    # 构造 rm -rf 命令（兼容 Linux/macOS 和 Windows Git Bash）
-    if os.name == "posix":  # Linux/macOS
-        command = f"rm -rf {target_dir}/2025*"
-    else:  # Windows（假设使用 Git Bash）
-        command = f"rm -rf {target_dir}/2025*"
-    
-    # 执行命令
+
+    # 删除匹配 2025* 的文件和目录
     try:
-        print(f"执行命令: {command}")
-        subprocess.run(command, shell=True, check=True)
+        for item in os.listdir(target_dir):
+            if item.startswith("2025"):
+                item_path = os.path.join(target_dir, item)
+                if os.path.isfile(item_path):
+                    os.remove(item_path)  # 删除文件
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)  # 删除目录（递归）
         print("删除成功！")
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         print(f"删除失败: {e}")
 
 if __name__ == "__main__":
