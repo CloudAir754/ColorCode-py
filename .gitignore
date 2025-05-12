@@ -21,6 +21,10 @@ FlaskServer/__pycache__
 out/2025*
 out/tmp
 
+## 打包
+build
+dist
+Color.exe.spec
 
 
 
