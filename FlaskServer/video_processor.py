@@ -85,47 +85,85 @@ class VideoProcessor:
 
 
     def get_transition_info(self):
-        """获取阶段转换信息"""
+        """获取阶段转换信息，返回格式化的字符串"""
+        # 原始信息打印保持不变
         print("="*50)
-        print("原始信息如下：")
+        print("The original information is as follows:")
         print(self.stage_transitions)
         print("="*50)
-        # 重整输出内容
-        # 在这里添加人名转化逻辑
-        #  当第一阶段有数据时，转第一阶段数据为人名
-
+        
+        # 检查第一阶段数据是否存在
         if self.stage_transitions[1] is None:
-            print("未检出第一阶段内容")
+            print("Stage 1 content not detected (No Full)")
             return self.stage_transitions
-
+        
+        # 获取第一阶段时间作为基准
+        base_time = self.stage_transitions[1]['frame_info']['timestamp']
+        
+        # 转换姓名
         time_1_picMatrix = self.stage_transitions[1]["color_matrix"]
         name = self._convert_name(time_1_picMatrix)
-        stretchRatio_Time_list = {}
-        for stage, data in self.stage_transitions.items():
-            if data is not None:  # 检查是否有效（非None）
-                stretch_ratio = data["stretch_ratio"]
-                stretch_ratio = round(float(stretch_ratio), 2)
-                stretch_ratio = f"拉伸：{stretch_ratio}"
-                Time_now = data['frame_info']['timestamp']
-                Time_now = round(Time_now,3)
-                Time_now = f"时间点：{Time_now} 秒"
-                stretchRatio_Time_list[stage] = (stretch_ratio,Time_now)
-            else:
-                stretchRatio_Time_list[stage] = (None,None)
         
-        # print(stretchRatio_Time_list)
-        # print(name)
-        # print("拉伸和事件信息")
-        change_info = f"姓名：{name} 拉伸信息：{stretchRatio_Time_list}"
-        print("*"*50)
-        print("整理后信息如下：")
-        print(self.stage_transitions)
-        print("*"*50)
-        return change_info
-        # 该函数的返回信息直接视为字符串
+        # 准备阶段信息
+        stage_names = {
+            1: "Full_Stage_1",
+            2: "Blue_Gone_2", 
+            3: "Red_Gone_3"
+        }
+        
+        # 收集各阶段信息
+        stage_details = []
+        for stage, data in self.stage_transitions.items():
+            if data is not None:
+                # 计算相对时间
+                relative_time = round(data['frame_info']['timestamp'] - base_time, 3)
+                absolute_time = round(data['frame_info']['timestamp'], 3)
+                
+                # 格式化拉伸比
+                stretch_ratio = round(float(data["stretch_ratio"]), 3)
+                
+                # 格式化颜色矩阵为3行
+                color_matrix = "\n".join(
+                    [f"    {str(row):<30}" for row in data['color_matrix']]
+                )
+                
+                stage_details.append(
+                    f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
+                    # f"  Absolute time: {absolute_time:>7} s\n"
+                    f"   Relative time: +{relative_time:>6} s\n"
+                    f"   Stretching ratio:   {stretch_ratio:>7}\n"
+                    f"   Color matrix:\n{color_matrix}"
+                )
+            else:
+                stage_details.append(
+                    f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
+                    f"  No content found at this stage"
+                )    
+        
+        # 构建最终输出
+        formatted_output = (
+            f"\n{' TQR Code ':=^30}\n"
+            f"Name: {name}\n"
+            # f"基准时间(Stage 1): {base_time:.3f} s\n"
+            f"\nConversion information for each stage:\n"
+            f"{'-'*30}\n"
+            + "\n\n".join(stage_details) +
+            f"\n{'-'*30}\n"
+            f"{' End of analysis ':=^30}"
+        )
+        
+        print("*"*60)
+        print("The organized information is as follows:")
+        print(formatted_output)
+        print("*"*60)
+        
+        return formatted_output
 
     
     def _convert_name(self, pic_info):
+        """
+        由完全颜色（第一阶段）的图像，生成姓名        
+        """
         # 1. 提取关键颜色（6个位置）
         key_positions = [
             (0, 1), (0, 2),  # 第一行的第2、3个元素
@@ -146,6 +184,9 @@ class VideoProcessor:
         return info_name
 
     def _generate_name_list(self):
+        """
+        生成姓名组合       
+        """
         # 生成2^6=64个人名（示例：用字母组合）
         first_names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank"]
         last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson"]
@@ -190,7 +231,13 @@ def process_video(video_path):
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print("The basic information of the video is as follows")
     print(f"Width: {width}, Height: {height}, FPS: {fps}, Frame Count: {frame_count}")
+    turn_flag = False # 是否需要旋转
+    if width > height:
+        turn_flag = True
+        print("--Need Turn--")
     lenth_time = frame_count / fps
 
     processor = VideoProcessor()  # 创建处理器实例
@@ -202,7 +249,8 @@ def process_video(video_path):
             break
 
         # 添加旋转（假设所有视频都需要顺时针旋转90度）
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        if turn_flag:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         frame_current += 1
         
         # 分析当前帧 - 直接使用导入的 analyzeSingle
@@ -211,6 +259,7 @@ def process_video(video_path):
         # result 是一个json数组，包含当前帧的信息
         
         frame_tmp = result.get("pic_toSave")
+        # frame_tmp 这个的内容是一个合成图(左为定位，右为颜色注释)
 
         # 设置当前帧信息(帧序号，秒数)
         frame_info = {
@@ -218,7 +267,7 @@ def process_video(video_path):
             "timestamp": frame_current/fps
         }
         
-        # 处理分析结果
+        # 处理（当前帧）分析结果
         processor.process_frame(result, frame_info)
         
         # 在图片上绘制帧序号
@@ -253,10 +302,13 @@ def analyzeSingle(PicPath,pathSwtich=True):
         "pic_toSave": 图片数组
     """
 
+    # 在视频处理流程，调用者使用的参数为False
+
     time_start = time.time()
 
     # v0.3 之后，只需要导入图片
     detector = ColorCodeDetector(PicPath,pathSwtich=pathSwtich) # __init__
+    # False代表输入的是图片数组
 
     result = detector.analyze()
     time_end = time.time()
@@ -266,18 +318,4 @@ def analyzeSingle(PicPath,pathSwtich=True):
 
     return result
 
-
-
-if __name__ == "__main__":
-    # 测试视频路径
-    test_video = "./Sample/trailer.mp4"  # 替换为实际测试视频路径
-    
-    if not os.path.exists(test_video):
-        print(f"测试视频文件 {test_video} 不存在")
-    else:
-        print("开始处理视频...")
-        video_info, lenth_time = process_video(test_video)
-        print("\n处理结果:")
-        print(f"视频信息：{video_info}")
-        print(f"视频长度：{lenth_time}")
 
