@@ -69,7 +69,7 @@ class ColorCodeDetector:
         self.HPkernel = 9  # 形态学增强（闭运算核大小）
         self.HP_ts_radio = 0.3  # 拉伸突变容忍参数 
         self.HP_gamma = 0.7  # 指数映射比率 0.7
-        self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度
+        self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度 120
         self.HP_lightest_pencent= 20 #前百分之x的亮度，计算均值 20
         self.HP_lightest_Min_threshold = 20 # 亮度最低阈值20 
         self.HP_lightest_Max_threshold = 200 # 亮度最高阈值 170 猜的

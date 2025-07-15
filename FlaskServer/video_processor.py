@@ -32,6 +32,11 @@ class VideoProcessor:
         self.current_stage_candidate = None
         self.candidate_streak = 0  # 当前候选状态连续出现的帧数
 
+        self.frame_dic ={} # 帧号：数组
+        self.step2_frameNum = 9999 # 第二阶段的最终编号
+        self.step3_frameNum = 9999 # 第三阶段的最终编号
+        self.min_frameNum = 0 # 最终搜索边界
+
     def determine_stage(self, result):
         """
         根据分析结果确定当前阶段
@@ -48,10 +53,10 @@ class VideoProcessor:
             return self.STAGE_BLUE_GONE  # 第二阶段：蓝色消失
         elif red_count == 0:
             return self.STAGE_RED_GONE  # 第三阶段：红色消失
-        elif red_count+blue_count == 6:#(9-3=6;最标准的一阶段)
+        elif blue_count >0 :            # 第一阶段：只要有蓝色就行
             return self.STAGE_FULL_INFO
         else:
-            return self.STAGE_TOO_BRIGHT  # 第一阶段：全信息；或者是啥也没有
+            return self.STAGE_TOO_BRIGHT  # 第零阶段：全信息；或者是啥也没有
     
 
     def process_frame(self, result, frame_info):
@@ -95,28 +100,79 @@ class VideoProcessor:
         #  这里调整逻辑；宏观分析，所有划入同一阶段的都进行处理；
         # 根据"color_matrix"数组，如果某位置识别到是除了黑色（"Black"，"Zero=Black"）的其他颜色，则进行替换   
 
-        # current_candidate = self.determine_stage(result)
-        
-        # # 如果当前候选状态与之前不同，重置计数器
-        # if current_candidate != self.current_stage_candidate:
-        #     self.current_stage_candidate = current_candidate
-        #     self.candidate_streak = 1
-        # else:
-        #     self.candidate_streak += 1
 
-        # # 仅当候选状态连续出现足够帧数，并且是下一个合法状态时，才更新阶段
-        # if (
-        #     self.candidate_streak >= self.stability_threshold
-        #     and current_candidate > self.stage  # 确保状态是递进的
-        # ):
-        #     self.stage = current_candidate
-        #     # 记录阶段转换信息（如果是第一次进入该阶段）
-        #     if current_candidate in self.stage_transitions and self.stage_transitions[current_candidate] is None:
-        #         self.stage_transitions[current_candidate] = {
-        #             "color_matrix": result.get('color_matrix', []),
-        #             "stretch_ratio": result.get('stretch_ratio'),
-        #             "frame_info": frame_info
-        #         }
+    def _retry_with_adjusted_parameters(self):
+        """
+        当第一阶段数据未检测到时，逐步降低参数阈值并重试
+        返回 是否成功获得第一阶段(True)
+        """
+
+        original_brightness_threshold =  120 # ColorCodeDetector.HPbrightness_threshold
+        original_gamma = 0.7 # ColorCodeDetector.HP_gamma
+        
+        # 尝试5次调整参数
+        for attempt in range(1, 6):
+            # 按比例降低参数
+            reduction_factor = 0.8 ** attempt  # 每次降低20%
+            new_min_threshold = max(20, original_brightness_threshold * reduction_factor)
+            new_gamma = max(0.2, original_gamma * reduction_factor)
+            
+            print(f"Attempt {attempt}: Adjusting parameters - "
+                  f"Min threshold: {new_min_threshold:.1f}, Gamma: {new_gamma:.2f}")
+            
+            # 创建新的ColorCodeDetector实例并处理关键帧 {帧号：数组}
+            for frame_num, frame_dic1 in self.frame_dic.items():
+                if self.min_frameNum !=9999 and frame_num > self.min_frameNum:
+                    # 搜索边界有效 且 超限；则结束当前搜索
+                    break
+                                   
+                # 创建临时检测器并调整参数
+                detector = ColorCodeDetector(frame_dic1, pathSwtich=False)
+
+                # TODO 在改这里
+
+                detector.HPbrightness_threshold = new_min_threshold
+                detector.HP_gamma = new_gamma
+                
+                # 重新分析
+                new_result = detector.analyze()
+                
+                if new_result.get('Status') == 'Success':
+                    current_candidate = self.determine_stage(new_result)
+                    if current_candidate == self.STAGE_FULL_INFO:
+                        # 更新stage_transitions
+              
+                        frame_tmp3 = new_result.get("pic_toSave")
+                        # frame_tmp 这个的内容是一个合成图(左为定位，右为颜色注释)
+                        Ori_tmp = new_result.get("Ori_img")
+                        # Ori_tmp 这个的内容是一个原始图片（重整大小）
+
+                        # 设置当前帧信息(帧序号，秒数)
+                        frame_info = {
+                            "frame_number": frame_num,
+                            "timestamp": 0
+                        }
+                        
+                       
+
+                        self.stage_transitions[current_candidate] = {
+                            "color_matrix": new_result.get('color_matrix', []),
+                            "stretch_ratio": new_result.get('stretch_ratio'),
+                            "frame_info": frame_info
+                        }
+
+                        
+                        print(f"Successfully detected Stage 1 in attempt {attempt}")
+                        return True
+                    
+        print("All attempts failed to detect Stage 1")
+        return False
+    
+
+    def store_all_frame(self,frame,frame_num):
+        """存储帧，用于找不到第一阶段的情况"""
+        self.frame_dic[frame_num]=frame
+
 
 
 
@@ -131,7 +187,21 @@ class VideoProcessor:
         # 检查第一阶段数据是否存在
         if self.stage_transitions[1] is None:
             print("Stage 1 content not detected (No Full)")
-            return self.stage_transitions
+            
+            # 先将相关帧号提取出来
+            if self.stage_transitions[2] is not None:
+                self.step2_frameNum = self.stage_transitions[2]['frame_info']['frame_number']
+            if self.stage_transitions[3] is not None:
+                self.step3_frameNum = self.stage_transitions[3]['frame_info']['frame_number']
+            self.min_frameNum = min(self.step2_frameNum,self.step3_frameNum) # 最终搜索边界
+            print(f"重新搜索边界为 0 ~ {self.min_frameNum}")
+
+            # TODO 尝试降低参数重新检测
+            again_Succ = self._retry_with_adjusted_parameters()
+            
+            if again_Succ is False :
+                # 实在救不过来==》直接返回原始数据
+                return self.stage_transitions
         
         # 获取第一阶段时间作为基准
         base_time = self.stage_transitions[1]['frame_info']['timestamp']
@@ -165,7 +235,7 @@ class VideoProcessor:
                 
                 stage_details.append(
                     f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
-                    f"  Absolute time: {absolute_time:>7} s\n"
+                    f"   Absolute time: {absolute_time:>7} s\n"
                     f"   Relative time: +{relative_time:>6} s\n"
                     f"   Stretching ratio:   {stretch_ratio:>7}\n"
                     f"   Color matrix:\n{color_matrix}"
@@ -307,7 +377,10 @@ def process_video(video_path):
         
         # 处理（当前帧）分析结果
         processor.process_frame(result, frame_info)
-        
+        # 存储当前帧
+        processor.store_all_frame(frame=frame,frame_num=frame_current)
+
+
         # 在图片上绘制帧序号
 
         text = f"Frame: {frame_info}"
