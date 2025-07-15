@@ -84,7 +84,7 @@ class ColorCodeDetector:
             {"range": (283, 360), "name": "Red"}  # 283 <= h < 360 为红色！！
         ]
 
-        self.HP_Black_th= 0.65 # 黑色阈值 0.3
+        self.HP_Black_th= 0.15 # 黑色阈值 0.3
 
 
         # 绑定外部函数到类实例
@@ -130,13 +130,15 @@ class ColorCodeDetector:
                 "color_matrix": [self.final_codes[i*3:(i+1)*3] for i in range(3)],
                 "stretch_ratio": self.radio_stretch,
                 "Block_Counts":self.BlockCount,
-                "pic_toSave" :self.pic_toSave
+                "pic_toSave" :self.pic_toSave,
+                "Ori_img":self.Sized_img
             }
         else:
             return {
                 "Status":"Error",
                 "Error_info":self.Status,
                 "Block_Counts":self.BlockCount,      
-                "pic_toSave" :self.pic_toSave      
+                "pic_toSave" :self.pic_toSave,
+                "Ori_img":self.Sized_img      
             }
     

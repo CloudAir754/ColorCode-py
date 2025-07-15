@@ -61,27 +61,63 @@ class VideoProcessor:
             frame_info: 【字典】"frame_number" | "timestamp"        
         """
         current_candidate = self.determine_stage(result)
-        
-        # 如果当前候选状态与之前不同，重置计数器
-        if current_candidate != self.current_stage_candidate:
-            self.current_stage_candidate = current_candidate
-            self.candidate_streak = 1
-        else:
-            self.candidate_streak += 1
 
-        # 仅当候选状态连续出现足够帧数，并且是下一个合法状态时，才更新阶段
-        if (
-            self.candidate_streak >= self.stability_threshold
-            and current_candidate > self.stage  # 确保状态是递进的
-        ):
-            self.stage = current_candidate
-            # 记录阶段转换信息（如果是第一次进入该阶段）
-            if current_candidate in self.stage_transitions and self.stage_transitions[current_candidate] is None:
-                self.stage_transitions[current_candidate] = {
-                    "color_matrix": result.get('color_matrix', []),
-                    "stretch_ratio": result.get('stretch_ratio'),
-                    "frame_info": frame_info
-                }
+        # 先直接装入
+        if current_candidate == self.STAGE_TOO_BRIGHT:
+            # 这个状态意味着啥也没有
+            return
+        
+        if self.stage_transitions[current_candidate] is None:
+            # 未填入过信息
+            self.stage_transitions[current_candidate] = {
+            "color_matrix": result.get('color_matrix', []),
+            "stretch_ratio": result.get('stretch_ratio'),
+            "frame_info": frame_info
+            }
+        else:
+            # 已经有了原始数据，但是我像增加数据
+            Now_matrix = result.get('color_matrix', []) # 取出当前帧的颜色数组
+            Old_matrix = self.stage_transitions[current_candidate]["color_matrix"] # 取出老的颜色数组
+            # 遍历老颜色矩阵
+            for i in range(3):
+                for j in range(3):
+                    current_color = Old_matrix[i][j]
+                    # 如果当前位置是黑色或Zero，则进行处理；再看新数组是否有进步
+                    if current_color in ['Black', 'Zero=Black']:
+                        if Now_matrix[i][j] not in ['Black', 'Zero=Black']:
+                            # 此时认为当前帧的效果更好
+                            self.stage_transitions[current_candidate] = {
+                                "color_matrix": result.get('color_matrix', []),
+                                "stretch_ratio": result.get('stretch_ratio'),
+                                "frame_info": frame_info
+                                }       
+                
+        #  这里调整逻辑；宏观分析，所有划入同一阶段的都进行处理；
+        # 根据"color_matrix"数组，如果某位置识别到是除了黑色（"Black"，"Zero=Black"）的其他颜色，则进行替换   
+
+        # current_candidate = self.determine_stage(result)
+        
+        # # 如果当前候选状态与之前不同，重置计数器
+        # if current_candidate != self.current_stage_candidate:
+        #     self.current_stage_candidate = current_candidate
+        #     self.candidate_streak = 1
+        # else:
+        #     self.candidate_streak += 1
+
+        # # 仅当候选状态连续出现足够帧数，并且是下一个合法状态时，才更新阶段
+        # if (
+        #     self.candidate_streak >= self.stability_threshold
+        #     and current_candidate > self.stage  # 确保状态是递进的
+        # ):
+        #     self.stage = current_candidate
+        #     # 记录阶段转换信息（如果是第一次进入该阶段）
+        #     if current_candidate in self.stage_transitions and self.stage_transitions[current_candidate] is None:
+        #         self.stage_transitions[current_candidate] = {
+        #             "color_matrix": result.get('color_matrix', []),
+        #             "stretch_ratio": result.get('stretch_ratio'),
+        #             "frame_info": frame_info
+        #         }
+
 
 
     def get_transition_info(self):
@@ -129,7 +165,7 @@ class VideoProcessor:
                 
                 stage_details.append(
                     f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
-                    # f"  Absolute time: {absolute_time:>7} s\n"
+                    f"  Absolute time: {absolute_time:>7} s\n"
                     f"   Relative time: +{relative_time:>6} s\n"
                     f"   Stretching ratio:   {stretch_ratio:>7}\n"
                     f"   Color matrix:\n{color_matrix}"
@@ -260,6 +296,8 @@ def process_video(video_path):
         
         frame_tmp = result.get("pic_toSave")
         # frame_tmp 这个的内容是一个合成图(左为定位，右为颜色注释)
+        Ori_tmp = result.get("Ori_img")
+        # Ori_tmp 这个的内容是一个原始图片（重整大小）
 
         # 设置当前帧信息(帧序号，秒数)
         frame_info = {
@@ -282,7 +320,9 @@ def process_video(video_path):
 
         # 将图片保存到时间命名的子文件夹中
         frame_path = os.path.join(output_folder, f"frame_{frame_current}.jpg")
+        frame_path2 = os.path.join(output_folder, f"Ori_{frame_current}.jpg")
         cv2.imwrite(frame_path, frame_tmp)
+        cv2.imwrite(frame_path2, Ori_tmp)
 
     cap.release()
     video_info = processor.get_transition_info()
@@ -299,7 +339,8 @@ def analyzeSingle(PicPath,pathSwtich=True):
         "color_matrix": 3*3数组,
         "stretch_ratio": 拉伸比率,
         "Block_Counts": 块数量,
-        "pic_toSave": 图片数组
+        "pic_toSave": 图片数组,
+        "Ori_img": 原始图片（重整图片）
     """
 
     # 在视频处理流程，调用者使用的参数为False
