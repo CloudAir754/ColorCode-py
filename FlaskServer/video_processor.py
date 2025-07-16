@@ -211,6 +211,7 @@ class VideoProcessor:
         
         # 获取第一阶段时间作为基准
         base_time = self.stage_transitions[1]['frame_info']['timestamp']
+        base_radio = round(float(self.stage_transitions[1]['stretch_ratio']), 3)
         
         # 转换姓名
         time_1_picMatrix = self.stage_transitions[1]["color_matrix"]
@@ -226,6 +227,7 @@ class VideoProcessor:
         # TODO 准备修改这里，以加入拉伸比率的信息
         # 收集各阶段信息
         stage_details = []
+        radio_details = ""
 
         for stage, data in self.stage_transitions.items():
             if data is not None:
@@ -235,7 +237,11 @@ class VideoProcessor:
                 
                 # 格式化拉伸比
                 stretch_ratio = round(float(data["stretch_ratio"]), 3)
-                self.ratio[stage] = stretch_ratio # 将拉伸比计入字典
+                stretch_ratio =1 # 对应静态拉伸工况
+                self.ratio[stage] = stretch_ratio  # 将拉伸比计入字典
+
+                # 加入到字符串
+                radio_details += f"{relative_time:>6} s,\t\t {round(stretch_ratio/base_radio *100,2) }% \n"
                 
                 # 格式化颜色矩阵为3行
                 color_matrix = "\n".join(
@@ -267,25 +273,42 @@ class VideoProcessor:
         )
 
         # 进行拉伸率评价
-        self._value_radio()
+        pyhsical_condition = self._value_radio()
+
+        phone_output = (
+            f"\nName: {name}\n"
+            f"Time and Strain:\n"
+            f"{radio_details}\n"
+            f"Physical condition:\n"
+            f"{pyhsical_condition}"
+        )
+
+        
+        
         
         print("*"*60)
         print("The organized information is as follows:")
         print(formatted_output)
         print("*"*60)
         
-        return formatted_output
+        # TODO 改输出
+        return phone_output
 
     def _value_radio(self):
         data = self.ratio[self.STAGE_FULL_INFO]
+        
         if  data:            
             print(f"第一阶段的拉伸比为{data}")
+            
         data = self.ratio[self.STAGE_BLUE_GONE]
         if  data:
             print(f"第二阶段的拉伸比为{data}")
         data = self.ratio[self.STAGE_RED_GONE]
         if  data:
             print(f"第三阶段的拉伸比为{data}")
+
+        # 一堆判断逻辑
+        return "……………………………………"
 
     def _convert_name(self, pic_info):
         """
