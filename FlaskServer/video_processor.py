@@ -28,6 +28,12 @@ class VideoProcessor:
             self.STAGE_BLUE_GONE: None,
             self.STAGE_RED_GONE: None
         }
+        # 拉伸比率字典
+        self.ratio = {
+            self.STAGE_FULL_INFO: None,
+            self.STAGE_BLUE_GONE: None,
+            self.STAGE_RED_GONE: None
+        }
         self.stability_threshold = stability_threshold
         self.current_stage_candidate = None
         self.candidate_streak = 0  # 当前候选状态连续出现的帧数
@@ -51,8 +57,8 @@ class VideoProcessor:
         
         if blue_count == 0 and red_count > 0:
             return self.STAGE_BLUE_GONE  # 第二阶段：蓝色消失
-        elif red_count == 0:
-            return self.STAGE_RED_GONE  # 第三阶段：红色消失
+        elif blue_count == 0 and red_count == 0:
+            return self.STAGE_RED_GONE  # 第三阶段：红色+蓝色消失
         elif blue_count >0 :            # 第一阶段：只要有蓝色就行
             return self.STAGE_FULL_INFO
         else:
@@ -129,7 +135,7 @@ class VideoProcessor:
                 # 创建临时检测器并调整参数
                 detector = ColorCodeDetector(frame_dic1, pathSwtich=False)
 
-                # TODO 在改这里
+                # 在改这里
 
                 detector.HPbrightness_threshold = new_min_threshold
                 detector.HP_gamma = new_gamma
@@ -196,7 +202,7 @@ class VideoProcessor:
             self.min_frameNum = min(self.step2_frameNum,self.step3_frameNum) # 最终搜索边界
             print(f"重新搜索边界为 0 ~ {self.min_frameNum}")
 
-            # TODO 尝试降低参数重新检测
+            # 尝试降低参数重新检测
             again_Succ = self._retry_with_adjusted_parameters()
             
             if again_Succ is False :
@@ -217,8 +223,10 @@ class VideoProcessor:
             3: "Red_Gone_3"
         }
         
+        # TODO 准备修改这里，以加入拉伸比率的信息
         # 收集各阶段信息
         stage_details = []
+
         for stage, data in self.stage_transitions.items():
             if data is not None:
                 # 计算相对时间
@@ -227,6 +235,7 @@ class VideoProcessor:
                 
                 # 格式化拉伸比
                 stretch_ratio = round(float(data["stretch_ratio"]), 3)
+                self.ratio[stage] = stretch_ratio # 将拉伸比计入字典
                 
                 # 格式化颜色矩阵为3行
                 color_matrix = "\n".join(
@@ -250,13 +259,15 @@ class VideoProcessor:
         formatted_output = (
             f"\n{' TQR Code ':=^30}\n"
             f"Name: {name}\n"
-            # f"基准时间(Stage 1): {base_time:.3f} s\n"
             f"\nConversion information for each stage:\n"
             f"{'-'*30}\n"
             + "\n\n".join(stage_details) +
             f"\n{'-'*30}\n"
             f"{' End of analysis ':=^30}"
         )
+
+        # 进行拉伸率评价
+        self._value_radio()
         
         print("*"*60)
         print("The organized information is as follows:")
@@ -265,7 +276,17 @@ class VideoProcessor:
         
         return formatted_output
 
-    
+    def _value_radio(self):
+        data = self.ratio[self.STAGE_FULL_INFO]
+        if  data:            
+            print(f"第一阶段的拉伸比为{data}")
+        data = self.ratio[self.STAGE_BLUE_GONE]
+        if  data:
+            print(f"第二阶段的拉伸比为{data}")
+        data = self.ratio[self.STAGE_RED_GONE]
+        if  data:
+            print(f"第三阶段的拉伸比为{data}")
+
     def _convert_name(self, pic_info):
         """
         由完全颜色（第一阶段）的图像，生成姓名        
