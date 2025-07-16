@@ -86,7 +86,7 @@ class VideoProcessor:
             "frame_info": frame_info
             }
         else:
-            # 已经有了原始数据，但是我像增加数据
+            # 已经有了原始数据，但是补充未识别到的数据（黑色转彩色）
             Now_matrix = result.get('color_matrix', []) # 取出当前帧的颜色数组
             Old_matrix = self.stage_transitions[current_candidate]["color_matrix"] # 取出老的颜色数组
             # 遍历老颜色矩阵
@@ -96,7 +96,8 @@ class VideoProcessor:
                     # 如果当前位置是黑色或Zero，则进行处理；再看新数组是否有进步
                     if current_color in ['Black', 'Zero=Black']:
                         if Now_matrix[i][j] not in ['Black', 'Zero=Black']:
-                            # 此时认为当前帧的效果更好
+                            # 此时认为当前帧的效果更好（那应该是只进行增量替换呀；
+                            #   哎呀无所谓~~，保不准替换了会乱，而且用增量替换难以回查原始数据）
                             self.stage_transitions[current_candidate] = {
                                 "color_matrix": result.get('color_matrix', []),
                                 "stretch_ratio": result.get('stretch_ratio'),
@@ -107,21 +108,21 @@ class VideoProcessor:
         # 根据"color_matrix"数组，如果某位置识别到是除了黑色（"Black"，"Zero=Black"）的其他颜色，则进行替换   
 
 
-    def _retry_with_adjusted_parameters(self):
+    def _retry_with_adjusted_parameters(self,stage_to_search):
         """
-        当第一阶段数据未检测到时，逐步降低参数阈值并重试
-        返回 是否成功获得第一阶段(True)
+        当stage_to_search阶段数据未检测到时，逐步降低参数阈值并重试
+            返回 是否成功获得stage_to_search阶段(True)
         """
 
         original_brightness_threshold =  120 # ColorCodeDetector.HPbrightness_threshold
         original_gamma = 0.7 # ColorCodeDetector.HP_gamma
         
-        # 尝试5次调整参数
-        for attempt in range(1, 6):
+        # 尝试10次调整参数
+        for attempt in range(1, 11):
             # 按比例降低参数
-            reduction_factor = 0.8 ** attempt  # 每次降低20%
-            new_min_threshold = max(20, original_brightness_threshold * reduction_factor)
-            new_gamma = max(0.2, original_gamma * reduction_factor)
+            reduction_factor = 0.85 ** attempt  # 每次降低20%
+            new_min_threshold = max(15, original_brightness_threshold * reduction_factor)
+            new_gamma = max(0.15, original_gamma * reduction_factor)
             
             print(f"Attempt {attempt}: Adjusting parameters - "
                   f"Min threshold: {new_min_threshold:.1f}, Gamma: {new_gamma:.2f}")
@@ -145,42 +146,30 @@ class VideoProcessor:
                 
                 if new_result.get('Status') == 'Success':
                     current_candidate = self.determine_stage(new_result)
-                    if current_candidate == self.STAGE_FULL_INFO:
+                    if current_candidate == stage_to_search:
                         # 更新stage_transitions
               
-                        frame_tmp3 = new_result.get("pic_toSave")
-                        # frame_tmp 这个的内容是一个合成图(左为定位，右为颜色注释)
-                        Ori_tmp = new_result.get("Ori_img")
-                        # Ori_tmp 这个的内容是一个原始图片（重整大小）
-
                         # 设置当前帧信息(帧序号，秒数)
                         frame_info = {
                             "frame_number": frame_num,
                             "timestamp": 0
                         }
-                        
-                       
 
                         self.stage_transitions[current_candidate] = {
                             "color_matrix": new_result.get('color_matrix', []),
                             "stretch_ratio": new_result.get('stretch_ratio'),
                             "frame_info": frame_info
                         }
-
                         
                         print(f"Successfully detected Stage 1 in attempt {attempt}")
                         return True
                     
         print("All attempts failed to detect Stage 1")
-        return False
-    
+        return False 
 
     def store_all_frame(self,frame,frame_num):
         """存储帧，用于找不到第一阶段的情况"""
         self.frame_dic[frame_num]=frame
-
-
-
 
     def get_transition_info(self):
         """获取阶段转换信息，返回格式化的字符串"""
@@ -203,7 +192,7 @@ class VideoProcessor:
             print(f"重新搜索边界为 0 ~ {self.min_frameNum}")
 
             # 尝试降低参数重新检测
-            again_Succ = self._retry_with_adjusted_parameters()
+            again_Succ = self._retry_with_adjusted_parameters(self.STAGE_FULL_INFO)
             
             if again_Succ is False :
                 # 实在救不过来==》直接返回原始数据
@@ -211,7 +200,6 @@ class VideoProcessor:
         
         # 获取第一阶段时间作为基准
         base_time = self.stage_transitions[1]['frame_info']['timestamp']
-        base_radio = round(float(self.stage_transitions[1]['stretch_ratio']), 3)
         
         # 转换姓名
         time_1_picMatrix = self.stage_transitions[1]["color_matrix"]
@@ -224,7 +212,6 @@ class VideoProcessor:
             3: "Red_Gone_3"
         }
         
-        # TODO 准备修改这里，以加入拉伸比率的信息
         # 收集各阶段信息
         stage_details = []
         radio_details = ""
@@ -237,11 +224,10 @@ class VideoProcessor:
                 
                 # 格式化拉伸比
                 stretch_ratio = round(float(data["stretch_ratio"]), 3)
-                stretch_ratio =1 # 对应静态拉伸工况
                 self.ratio[stage] = stretch_ratio  # 将拉伸比计入字典
 
                 # 加入到字符串
-                radio_details += f"{relative_time:>6} s,\t\t {round(stretch_ratio/base_radio *100,2) }% \n"
+                radio_details += f"| {relative_time:1.2f} s \t | \t\t {stretch_ratio:1.2f}\n"
                 
                 # 格式化颜色矩阵为3行
                 color_matrix = "\n".join(
@@ -276,11 +262,13 @@ class VideoProcessor:
         pyhsical_condition = self._value_radio()
 
         phone_output = (
-            f"\nName: {name}\n"
-            f"Time and Strain:\n"
-            f"{radio_details}\n"
-            f"Physical condition:\n"
-            f"{pyhsical_condition}"
+            "\n|==========="
+            f"\n| Name: {name}\n"
+            f"| Time and Strain:\n"
+            f"{radio_details}"
+            f"| Physical condition:\n"
+            f"| {pyhsical_condition}"
+            "\n|==========="
         )
 
         
@@ -290,8 +278,6 @@ class VideoProcessor:
         print("The organized information is as follows:")
         print(formatted_output)
         print("*"*60)
-        
-        # TODO 改输出
         return phone_output
 
     def _value_radio(self):
@@ -308,7 +294,7 @@ class VideoProcessor:
             print(f"第三阶段的拉伸比为{data}")
 
         # 一堆判断逻辑
-        return "……………………………………"
+        return "…HEATHY/UNHEATHY…"
 
     def _convert_name(self, pic_info):
         """
