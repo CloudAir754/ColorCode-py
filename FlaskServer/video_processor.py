@@ -43,6 +43,8 @@ class VideoProcessor:
         self.step3_frameNum = 9999 # 第三阶段的最终编号
         self.min_frameNum = 0 # 最终搜索边界
 
+        self.fps = 0 # 获取fps数据
+
     def determine_stage(self, result):
         """
         根据分析结果确定当前阶段
@@ -152,7 +154,7 @@ class VideoProcessor:
                         # 设置当前帧信息(帧序号，秒数)
                         frame_info = {
                             "frame_number": frame_num,
-                            "timestamp": 0
+                            "timestamp": frame_num / self.fps
                         }
 
                         self.stage_transitions[current_candidate] = {
@@ -226,17 +228,19 @@ class VideoProcessor:
                 stretch_ratio = round(float(data["stretch_ratio"]), 3)
                 self.ratio[stage] = stretch_ratio  # 将拉伸比计入字典
 
-                # 加入到字符串
-                radio_details += f"| {relative_time:1.2f} s \t | \t\t {stretch_ratio:1.2f}\n"
+                radio_details += f"| {relative_time:1.2f} s \t | \t\t {stretch_ratio*100:3.2f}%\n"
                 
                 # 格式化颜色矩阵为3行
                 color_matrix = "\n".join(
                     [f"    {str(row):<30}" for row in data['color_matrix']]
                 )
+
+                frame_num = data['frame_info']['frame_number']
                 
                 stage_details.append(
                     f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
                     f"   Absolute time: {absolute_time:>7} s\n"
+                    f"   Ori frame number: {frame_num} \n"
                     f"   Relative time: +{relative_time:>6} s\n"
                     f"   Stretching ratio:   {stretch_ratio:>7}\n"
                     f"   Color matrix:\n{color_matrix}"
@@ -281,20 +285,30 @@ class VideoProcessor:
         return phone_output
 
     def _value_radio(self):
-        data = self.ratio[self.STAGE_FULL_INFO]
-        
-        if  data:            
-            print(f"第一阶段的拉伸比为{data}")
+        health_judeg = ""
+        judge2,judge3 = 0
+        try:
+            # 先取出拉伸量
+            data1 = self.ratio[self.STAGE_FULL_INFO]
+            data2 = self.ratio[self.STAGE_BLUE_GONE]
+            data3 = self.ratio[self.STAGE_RED_GONE]            
+          
+            if data2 > 1.3:
+                # 第一阶段拉的快
+                judge2 = 1
+            if data3 > 2.3:
+                judge3 = 1
             
-        data = self.ratio[self.STAGE_BLUE_GONE]
-        if  data:
-            print(f"第二阶段的拉伸比为{data}")
-        data = self.ratio[self.STAGE_RED_GONE]
-        if  data:
-            print(f"第三阶段的拉伸比为{data}")
+            if judge2 and judge3:
+                # 两次都拉伸的快
+                health_judeg = "…HEALTHY…"
+            else:
+                health_judeg = "…UNHEALTHY…"
 
-        # 一堆判断逻辑
-        return "…HEATHY/UNHEATHY…"
+        except:
+            health_judeg = "…HEALTHY…/UNHEATHY…"
+
+        return health_judeg
 
     def _convert_name(self, pic_info):
         """
@@ -377,6 +391,8 @@ def process_video(video_path):
     lenth_time = frame_count / fps
 
     processor = VideoProcessor()  # 创建处理器实例
+
+    processor.fps = fps # 传入fps数据
 
     frame_current = 0
     while cap.isOpened():
