@@ -293,10 +293,10 @@ class VideoProcessor:
             data2 = self.ratio[self.STAGE_BLUE_GONE]
             data3 = self.ratio[self.STAGE_RED_GONE]            
           
-            if data2 > 1.3:
+            if data2 > 1.1:
                 # 第一阶段拉的快
                 judge2 = 1
-            if data3 > 2.3:
+            if data3 > 1.3:
                 judge3 = 1
             
             if judge2 and judge3:
