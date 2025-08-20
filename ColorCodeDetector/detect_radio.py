@@ -37,6 +37,6 @@ def detect_stretch_ratio(self):
                 print(Error_info)
 
     
-    self.radio_stretch = mean_ratio
+    self.radio_stretch = 1/mean_ratio
     return 
 

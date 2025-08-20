@@ -69,7 +69,7 @@ class ColorCodeDetector:
         self.HPkernel = 9  # 形态学增强（闭运算核大小）
         self.HP_ts_radio = 0.3  # 拉伸突变容忍参数 
         self.HP_gamma = 0.7  # 指数映射比率 0.7
-        self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度
+        self.HPbrightness_threshold = 120  # 亮度通道阈值，高于此值则加亮度 120
         self.HP_lightest_pencent= 20 #前百分之x的亮度，计算均值 20
         self.HP_lightest_Min_threshold = 20 # 亮度最低阈值20 
         self.HP_lightest_Max_threshold = 200 # 亮度最高阈值 170 猜的
@@ -84,7 +84,7 @@ class ColorCodeDetector:
             {"range": (283, 360), "name": "Red"}  # 283 <= h < 360 为红色！！
         ]
 
-        self.HP_Black_th= 0.65 # 黑色阈值 0.3
+        self.HP_Black_th= 0.15 # 黑色阈值 0.3
 
 
         # 绑定外部函数到类实例
@@ -130,13 +130,15 @@ class ColorCodeDetector:
                 "color_matrix": [self.final_codes[i*3:(i+1)*3] for i in range(3)],
                 "stretch_ratio": self.radio_stretch,
                 "Block_Counts":self.BlockCount,
-                "pic_toSave" :self.pic_toSave
+                "pic_toSave" :self.pic_toSave,
+                "Ori_img":self.Sized_img
             }
         else:
             return {
                 "Status":"Error",
                 "Error_info":self.Status,
                 "Block_Counts":self.BlockCount,      
-                "pic_toSave" :self.pic_toSave      
+                "pic_toSave" :self.pic_toSave,
+                "Ori_img":self.Sized_img      
             }
     

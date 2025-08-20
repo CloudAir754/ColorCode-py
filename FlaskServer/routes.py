@@ -33,6 +33,9 @@ def init_routes(app):
     @app.route('/upload', methods=['POST'])
     def upload_video():
         """处理视频分片上传"""
+
+        print("收到上传任务")
+
         # 获取分片信息
         chunk_number = request.form.get('chunk_number', type=int)
         total_chunks = request.form.get('total_chunks', type=int)
@@ -125,12 +128,12 @@ def init_routes(app):
 
 
     def process_task(task_id,video_path):
-        """模拟长时间运行的任务处理"""
+        """视频处理任务（子线程），上承视频+下送视频信息"""
 
         # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
         video_info, video_time_lenth = process_video(video_path)
 
-        print("已生成数据")
+        print("Generated data")
         
         task_status[task_id] = {
             'status': 'completed',
