@@ -174,7 +174,7 @@ def init_routes(app):
             if status_info['status'] == 'completed':
                 return jsonify({
                     'status': 'completed',
-                    'result': status_info.get('result', {}),
+                    'result': status_info.get('result', {}), # {'info': '123'}, #
                     'message': 'Video processing completed'
                 }), 200
             else:
