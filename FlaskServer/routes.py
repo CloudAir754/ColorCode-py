@@ -130,6 +130,29 @@ def init_routes(app):
     def process_task(task_id,video_path):
         """视频处理任务（子线程），上承视频+下送视频信息"""
 
+        # 前后端联调开关
+        debug_mode = True
+
+        if debug_mode == True:
+            print("[Debug]Generated data")
+            task_status[task_id] = {
+                'status': 'completed',
+                'result': {
+                    'duration': f'{1}',
+                    'info': {
+                        'name': '5D Code 1',
+                        'speed': "100.4 mm/min",
+                        'detail': {
+                            'stretch_rate_1': '0s       100.3%',
+                            'stretch_rate_2': '1.63s    107.3%',
+                            'stretch_rate_3': '3.49s    114.9%'
+                        }
+                    }
+                }
+            }
+
+            return
+            
         # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
         video_info, video_time_lenth = process_video(video_path)
 
