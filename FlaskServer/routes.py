@@ -139,7 +139,7 @@ def init_routes(app):
             'status': 'completed',
             'result': {
                 'duration': f'{video_time_lenth}',
-                'info': f'{video_info}'
+                'info': video_info
             }
         }
 
@@ -196,4 +196,4 @@ def init_routes(app):
         }
         response["response_time"] = time.time() - start_time
         return jsonify(response)
-    
+

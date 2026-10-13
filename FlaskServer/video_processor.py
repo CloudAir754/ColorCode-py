@@ -3,9 +3,29 @@ import os,sys
 from datetime import datetime
 import time
 import json
+import threading
 # 解决单独运行时模块导入问题
 
 from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
+
+
+# 是否对同一样品复用首次识别到的三阶段变色时间。
+# 关闭后每次都使用当前视频自身识别到的时间。
+USE_STORED_TRANSITION_TIMES = True
+
+# 时间映射的绑定方式：
+# - "image": 每个 3x3 颜色矩阵拥有独立的时间预设。
+# - "program": 全程序共用第一个完整的时间预设。
+TIME_MAPPING_SCOPE_IMAGE = "image"
+TIME_MAPPING_SCOPE_PROGRAM = "program"
+TRANSITION_TIME_MAPPING_SCOPE = TIME_MAPPING_SCOPE_IMAGE
+
+# {3x3 颜色矩阵: {stage: 相对于第一阶段的秒数}}
+# 仅保存在内存中，服务重启后自动清空。
+SAMPLE_TRANSITION_TIME_CACHE = {}
+# 用字典包装，便于在多个 VideoProcessor 实例之间共享与清空。
+PROGRAM_TRANSITION_TIME_PRESET = {"times": None}
+_SAMPLE_TRANSITION_TIME_CACHE_LOCK = threading.Lock()
 
 
 class VideoProcessor:
@@ -17,7 +37,8 @@ class VideoProcessor:
     STAGE_BLUE_GONE = 2
     STAGE_RED_GONE = 3
 
-    def __init__(self,stability_threshold=5):
+    def __init__(self, stability_threshold=5, use_stored_transition_times=None,
+                 time_mapping_scope=None):
         """
         初始化视频处理器
         :param stability_threshold: 状态稳定所需的连续帧数
@@ -44,6 +65,25 @@ class VideoProcessor:
         self.min_frameNum = 0 # 最终搜索边界
 
         self.fps = 0 # 获取fps数据
+        self.use_stored_transition_times = (
+            USE_STORED_TRANSITION_TIMES
+            if use_stored_transition_times is None
+            else use_stored_transition_times
+        )
+        self.time_mapping_scope = (
+            TRANSITION_TIME_MAPPING_SCOPE
+            if time_mapping_scope is None
+            else time_mapping_scope
+        )
+        if self.time_mapping_scope not in {
+            TIME_MAPPING_SCOPE_IMAGE,
+            TIME_MAPPING_SCOPE_PROGRAM,
+        }:
+            raise ValueError(
+                "time_mapping_scope must be either 'image' or 'program'"
+            )
+        # 保存每个成功识别帧的轻量数据，用于按已存时间回取拉伸比。
+        self.stretch_samples = []
 
     def determine_stage(self, result):
         """
@@ -74,6 +114,17 @@ class VideoProcessor:
             frame_info: 【字典】"frame_number" | "timestamp"        
         """
         current_candidate = self.determine_stage(result)
+
+        if result.get('Status') == 'Success' and result.get('stretch_ratio') is not None:
+            try:
+                self.stretch_samples.append({
+                    "timestamp": float(frame_info["timestamp"]),
+                    "frame_number": frame_info["frame_number"],
+                    "stretch_ratio": float(result["stretch_ratio"]),
+                    "color_matrix": result.get('color_matrix', [])
+                })
+            except (KeyError, TypeError, ValueError):
+                print("[TransitionTimeCache] Ignored an invalid stretch sample.")
 
         # 先直接装入
         if current_candidate == self.STAGE_TOO_BRIGHT:
@@ -162,6 +213,15 @@ class VideoProcessor:
                             "stretch_ratio": new_result.get('stretch_ratio'),
                             "frame_info": frame_info
                         }
+                        try:
+                            self.stretch_samples.append({
+                                "timestamp": float(frame_info["timestamp"]),
+                                "frame_number": frame_info["frame_number"],
+                                "stretch_ratio": float(new_result["stretch_ratio"]),
+                                "color_matrix": new_result.get('color_matrix', [])
+                            })
+                        except (KeyError, TypeError, ValueError):
+                            print("[TransitionTimeCache] Ignored an invalid retry sample.")
                         
                         print(f"Successfully detected Stage 1 in attempt {attempt}")
                         return True
@@ -173,8 +233,85 @@ class VideoProcessor:
         """存储帧，用于找不到第一阶段的情况"""
         self.frame_dic[frame_num]=frame
 
+    @staticmethod
+    def _matrix_cache_key(color_matrix):
+        """将颜色矩阵转成可作为字典键的结构。"""
+        try:
+            return tuple(tuple(row) for row in color_matrix)
+        except TypeError:
+            return None
+
+    def _select_transition_times(self, color_matrix, base_time):
+        """
+        返回用于本次计算的相对时间以及时间来源。
+
+        只有三个阶段都存在时才写入缓存，避免不完整数据影响后续调用。
+        """
+        original_times = {
+            stage: round(data['frame_info']['timestamp'] - base_time, 3)
+            for stage, data in self.stage_transitions.items()
+            if data is not None
+        }
+
+        if not self.use_stored_transition_times:
+            print("[TransitionTimeCache] Switch OFF: using ORIGINAL transition times.")
+            return original_times, "original"
+
+        cache_key = self._matrix_cache_key(color_matrix)
+        if self.time_mapping_scope == TIME_MAPPING_SCOPE_IMAGE and cache_key is None:
+            print("[TransitionTimeCache] Invalid sample matrix: using ORIGINAL transition times.")
+            return original_times, "original"
+
+        with _SAMPLE_TRANSITION_TIME_CACHE_LOCK:
+            if self.time_mapping_scope == TIME_MAPPING_SCOPE_IMAGE:
+                stored_times = SAMPLE_TRANSITION_TIME_CACHE.get(cache_key)
+            else:
+                stored_times = PROGRAM_TRANSITION_TIME_PRESET["times"]
+
+            if stored_times is not None:
+                selected_times = stored_times.copy()
+            elif all(stage in original_times for stage in self.stage_transitions):
+                if self.time_mapping_scope == TIME_MAPPING_SCOPE_IMAGE:
+                    SAMPLE_TRANSITION_TIME_CACHE[cache_key] = original_times.copy()
+                else:
+                    PROGRAM_TRANSITION_TIME_PRESET["times"] = original_times.copy()
+                selected_times = None
+            else:
+                selected_times = None
+
+        if selected_times is not None:
+            print(
+                "[TransitionTimeCache] Cache HIT: using STORED transition times "
+                f"with '{self.time_mapping_scope}' binding for stretch calculation: "
+                f"{selected_times}"
+            )
+            return selected_times, "stored"
+
+        if len(original_times) == len(self.stage_transitions):
+            print(
+                "[TransitionTimeCache] Cache MISS: using ORIGINAL transition times; "
+                f"stored them with '{self.time_mapping_scope}' binding for the next call: "
+                f"{original_times}"
+            )
+        else:
+            print(
+                "[TransitionTimeCache] Cache MISS: using ORIGINAL transition times; "
+                "not stored because the three-stage times are incomplete."
+            )
+        return original_times, "original"
+
+    def _sample_at_relative_time(self, relative_time, base_time):
+        """返回距离目标时间最近的当前视频拉伸采样。"""
+        if not self.stretch_samples:
+            return None
+        target_time = base_time + relative_time
+        return min(
+            self.stretch_samples,
+            key=lambda sample: abs(sample["timestamp"] - target_time)
+        )
+
     def get_transition_info(self):
-        """获取阶段转换信息，返回格式化的字符串"""
+        """获取阶段转换信息，返回可直接 JSON 序列化的 Images Information。"""
         # 原始信息打印保持不变
         print("="*50)
         print("The original information is as follows:")
@@ -206,87 +343,122 @@ class VideoProcessor:
         # 转换姓名
         time_1_picMatrix = self.stage_transitions[1]["color_matrix"]
         name = self._convert_name(time_1_picMatrix)
-        
-        # 准备阶段信息
-        stage_names = {
-            1: "Full_Stage_1",
-            2: "Blue_Gone_2", 
-            3: "Red_Gone_3"
+
+        transition_times, time_source = self._select_transition_times(
+            time_1_picMatrix, base_time
+        )
+
+        stage_labels = {
+            self.STAGE_FULL_INFO: "RGB",
+            self.STAGE_BLUE_GONE: "RG",
+            self.STAGE_RED_GONE: "G",
         }
-        
-        # 收集各阶段信息
-        stage_details = []
-        radio_details = ""
+        stage_descriptions = {
+            self.STAGE_FULL_INFO: "一阶段RGB",
+            self.STAGE_BLUE_GONE: "二阶段RG",
+            self.STAGE_RED_GONE: "三阶段G",
+        }
 
         for stage, data in self.stage_transitions.items():
-            if data is not None:
-                # 计算相对时间
-                relative_time = round(data['frame_info']['timestamp'] - base_time, 3)
-                absolute_time = round(data['frame_info']['timestamp'], 3)
-                
-                # 格式化拉伸比
-                stretch_ratio = round(float(data["stretch_ratio"]), 3)
+            can_use_stored_time = time_source == "stored" and stage in transition_times
+            if data is not None or can_use_stored_time:
+                # 命中缓存时，用已存时间找当前视频中最近的拉伸采样。
+                relative_time = (
+                    transition_times[stage]
+                    if stage in transition_times
+                    else round(data['frame_info']['timestamp'] - base_time, 3)
+                )
+                selected_sample = (
+                    self._sample_at_relative_time(relative_time, base_time)
+                    if time_source == "stored"
+                    else None
+                )
+                if selected_sample is not None:
+                    print(
+                        f"[TransitionTimeCache] Stage {stage}: STORED relative time "
+                        f"{relative_time:.3f}s -> current frame "
+                        f"{selected_sample['frame_number']} at "
+                        f"{selected_sample['timestamp']:.3f}s, stretch ratio "
+                        f"{selected_sample['stretch_ratio']:.3f}."
+                    )
+                if data is None and selected_sample is None:
+                    continue
+
+                stretch_ratio = round(float(
+                    selected_sample["stretch_ratio"] if selected_sample
+                    else data["stretch_ratio"]
+                ), 3)
                 self.ratio[stage] = stretch_ratio  # 将拉伸比计入字典
 
-                radio_details += f"| {relative_time:1.2f} s \t | \t\t {stretch_ratio*100:3.2f}%\n"
-                
-                # 格式化颜色矩阵为3行
-                color_matrix = "\n".join(
-                    [f"    {str(row):<30}" for row in data['color_matrix']]
-                )
+        time_differences = self._calculate_time_differences(transition_times)
 
-                frame_num = data['frame_info']['frame_number']
-                
-                stage_details.append(
-                    f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
-                    f"   Absolute time: {absolute_time:>7} s\n"
-                    f"   Ori frame number: {frame_num} \n"
-                    f"   Relative time: +{relative_time:>6} s\n"
-                    f"   Stretching ratio:   {stretch_ratio:>7}\n"
-                    f"   Color matrix:\n{color_matrix}"
-                )
-            else:
-                stage_details.append(
-                    f"{stage_names.get(stage, f'Unknown stage {stage}')}:\n"
-                    f"  No content found at this stage"
-                )    
-        
-        # 构建最终输出
-        formatted_output = (
-            f"\n{' TQR Code ':=^30}\n"
-            f"Name: {name}\n"
-            f"\nConversion information for each stage:\n"
-            f"{'-'*30}\n"
-            + "\n\n".join(stage_details) +
-            f"\n{'-'*30}\n"
-            f"{' End of analysis ':=^30}"
-        )
+        if time_source == "original":
+            images_information = {
+                "stages": {
+                    stage_labels[stage]: {
+                        "time": transition_times.get(stage),
+                        "description": stage_descriptions[stage],
+                    }
+                    for stage in stage_labels
+                },
+                "time_differences": time_differences,
+            }
+        else:
+            stretch_details = {
+                stage_labels[stage]: f"α：{self.ratio[stage] * 100:.2f}%"
+                for stage in stage_labels
+                if self.ratio[stage] is not None
+            }
+            speed = self._calculate_stretch_speed(transition_times)
+            images_information = {
+                "name": name,
+                "stretch": stretch_details,
+                "preset_time_differences": time_differences,
+                "stretch_speed": {
+                    "value": speed,
+                    "unit": "%/s",
+                    "display": None if speed is None else f"{speed:.2f} %/s",
+                },
+            }
 
-        # 进行拉伸率评价
-        pyhsical_condition = self._value_radio()
-
-        phone_output = (
-            "\n|==========="
-            f"\n| Name: {name}\n"
-            f"| Time and Strain:\n"
-            f"{radio_details}"
-            f"| Physical condition:\n"
-            f"| {pyhsical_condition}"
-            "\n|==========="
-        )
-
-        
-        
-        
         print("*"*60)
-        print("The organized information is as follows:")
-        print(formatted_output)
+        print(
+            "Images Information "
+            f"({time_source.upper()} time, {self.time_mapping_scope} binding):"
+        )
+        print(images_information)
         print("*"*60)
-        return phone_output
+        return images_information
+
+    @staticmethod
+    def _calculate_time_differences(transition_times):
+        """计算一、二阶段和二、三阶段之间的预设时间差。"""
+        if not all(stage in transition_times for stage in (1, 2, 3)):
+            return {"t1": None, "t2": None, "unit": "s"}
+        return {
+            "t1": round(transition_times[2] - transition_times[1], 3),
+            "t2": round(transition_times[3] - transition_times[2], 3),
+            "unit": "s",
+        }
+
+    def _calculate_stretch_speed(self, transition_times):
+        """
+        使用首末阶段的应变增量除以预设总时间，单位为 %/s。
+
+        当前识别结果没有实际长度标定，因此不输出 mm/min。
+        """
+        first_ratio = self.ratio[self.STAGE_FULL_INFO]
+        last_ratio = self.ratio[self.STAGE_RED_GONE]
+        if first_ratio is None or last_ratio is None:
+            return None
+        total_time = transition_times.get(3, 0) - transition_times.get(1, 0)
+        if total_time <= 0:
+            return None
+        return round((last_ratio - first_ratio) * 100 / total_time, 3)
 
     def _value_radio(self):
         health_judeg = ""
-        judge2,judge3 = 0
+        judge2, judge3 = 0, 0
         try:
             # 先取出拉伸量
             data1 = self.ratio[self.STAGE_FULL_INFO]
@@ -312,7 +484,7 @@ class VideoProcessor:
 
     def _convert_name(self, pic_info):
         """
-        由完全颜色（第一阶段）的图像，生成姓名        
+        由完全颜色（第一阶段）的图像，生成样品编号。
         """
         # 1. 提取关键颜色（6个位置）
         key_positions = [
@@ -326,31 +498,11 @@ class VideoProcessor:
         binary_code = [1 if color == 'Red' else 0 for color in key_colors]
         binary_str = ''.join(map(str, binary_code))  # 例如 "101010"
 
-        # 3. 映射到预定义的64个人名（这里用简化的方式生成）
+        # 3. 映射到 01-64 的样品序号。
         name_index = int(binary_str, 2)  # 二进制转十进制（0-63）
-        name_list = self._generate_name_list()  # 生成64个人名
-        info_name = name_list[name_index]
+        return f"5D code{name_index + 1:02d}"
 
-        return info_name
-
-    def _generate_name_list(self):
-        """
-        生成姓名组合       
-        """
-        # 生成2^6=64个人名（示例：用字母组合）
-        first_names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank"]
-        last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson"]
-        
-        name_list = []
-        for i in range(64):
-            first = first_names[i % 8]
-            last = last_names[i // 8]
-            name_list.append(f"{first} {last}")
-        
-        return name_list
-
-
-def process_video(video_path):
+def process_video(video_path, use_stored_transition_times=None, time_mapping_scope=None):
     """
     处理视频的主函数（被route文件调用）
     :param video_path: 视频文件路径
@@ -390,7 +542,10 @@ def process_video(video_path):
         print("--Need Turn--")
     lenth_time = frame_count / fps
 
-    processor = VideoProcessor()  # 创建处理器实例
+    processor = VideoProcessor(
+        use_stored_transition_times=use_stored_transition_times,
+        time_mapping_scope=time_mapping_scope,
+    )  # 创建处理器实例
 
     processor.fps = fps # 传入fps数据
 
