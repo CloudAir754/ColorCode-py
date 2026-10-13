@@ -2,6 +2,7 @@ from flask import request, jsonify
 import tempfile
 import os
 from .video_processor import process_video
+from .display_test_config import get_display_test_result
 from werkzeug.utils import secure_filename
 import time
 import uuid
@@ -129,6 +130,18 @@ def init_routes(app):
 
     def process_task(task_id,video_path):
         """视频处理任务（子线程），上承视频+下送视频信息"""
+
+        display_test_result = get_display_test_result()
+        if display_test_result is not None:
+            print(
+                "[DisplayTest] Skipped video analysis and generated custom "
+                "Android dialog data."
+            )
+            task_status[task_id] = {
+                'status': 'completed',
+                'result': display_test_result
+            }
+            return
 
         # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
         video_info, video_time_lenth = process_video(video_path)
