@@ -51,6 +51,8 @@ class ColorCodeDetector:
         # 控制开关
         self.show_steps = False  # 控制是否显示处理步骤
         self.steps_fig = 0
+        # 调试工具可设置此目录，将每一步处理图保存为文件；正常服务运行时为 None。
+        self.debug_output_dir = None
         self.show_details = False # 展示hsv
         self.Status = "Success" # 默认成功
         self.BlockCount = 1 # 识别到的方块（不作为调参时的依据，因为过亮且面积合适的边缘也可能会识别为方块）
@@ -141,4 +143,4 @@ class ColorCodeDetector:
                 "pic_toSave" :self.pic_toSave,
                 "Ori_img":self.Sized_img      
             }
-    
+

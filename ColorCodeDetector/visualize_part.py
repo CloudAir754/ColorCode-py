@@ -1,11 +1,28 @@
+import os
+import re
+
 import cv2
 
 def  visualize_process(self, title_showd, img_showed):
-    """展示图片"""
+    """按需展示或保存中间处理图片。"""
+    debug_output_dir = getattr(self, "debug_output_dir", None)
+    if debug_output_dir:
+        os.makedirs(debug_output_dir, exist_ok=True)
+        safe_title = re.sub(r"[^0-9A-Za-z._-]+", "_", title_showd).strip("_")
+        file_name = f"{self.steps_fig:02d}_{safe_title or 'step'}.png"
+        output_path = os.path.join(debug_output_dir, file_name)
+        # OpenCV 在 Windows 下对中文路径支持不稳定，编码后再写入可避免静默失败。
+        extension = os.path.splitext(output_path)[1] or ".png"
+        ok, encoded = cv2.imencode(extension, img_showed)
+        if ok:
+            encoded.tofile(output_path)
+        self.steps_fig += 1
+
     if self.show_steps:
         title_showd = "[Step " + str(self.steps_fig) + " ]= " + title_showd
         cv2.imshow(title_showd, img_showed)
-        self.steps_fig += 1
+        if not debug_output_dir:
+            self.steps_fig += 1
 
 
 def visualization_detect_contours(self):
