@@ -103,6 +103,11 @@ def init_routes(app):
                 task_id = file_id #str(uuid.uuid4())
                 print(f"Video processing task created, task_id: {task_id}")
 
+                # 先登记任务，避免 Android 在后台线程完成前轮询时得到“任务不存在”。
+                task_status[task_id] = {
+                    'status': 'processing',
+                }
+
                 # 启动后台线程处理任务
                 thread = Thread(target=process_task, args=(task_id,final_path,))
                 thread.start()
@@ -131,30 +136,38 @@ def init_routes(app):
     def process_task(task_id,video_path):
         """视频处理任务（子线程），上承视频+下送视频信息"""
 
-        display_test_result = get_display_test_result()
-        if display_test_result is not None:
-            print(
-                "[DisplayTest] Skipped video analysis and generated custom "
-                "Android dialog data."
-            )
+        try:
+            display_test_result = get_display_test_result()
+            if display_test_result is not None:
+                print(
+                    "[DisplayTest] Skipped video analysis and generated custom "
+                    "Android dialog data."
+                )
+                task_status[task_id] = {
+                    'status': 'completed',
+                    'result': display_test_result
+                }
+                return
+
+            # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
+            video_info, video_time_lenth = process_video(video_path)
+
+            print("Generated data")
+
             task_status[task_id] = {
                 'status': 'completed',
-                'result': display_test_result
+                'result': {
+                    'duration': f'{video_time_lenth}',
+                    'info': video_info
+                }
             }
-            return
-
-        # 调用视频处理内容；该进程已处于子进程，不会干扰网络主进程
-        video_info, video_time_lenth = process_video(video_path)
-
-        print("Generated data")
-        
-        task_status[task_id] = {
-            'status': 'completed',
-            'result': {
-                'duration': f'{video_time_lenth}',
-                'info': video_info
+        except Exception as exc:
+            print(f"[Error] Video processing failed for task {task_id}: {exc}")
+            task_status[task_id] = {
+                'status': 'error',
+                'error': 'Video processing failed',
+                'message': 'The server could not process this video.'
             }
-        }
 
         return
 
@@ -166,10 +179,10 @@ def init_routes(app):
         # 检查任务是否存在
         if task_id not in task_status:
             return jsonify({
-                'status': '[Error]Task not found',
+                'status': 'error',
                 'error': 'Task not found',
                 'message': f'No task found with ID {task_id}'
-            }), 202
+            }), 404
         
             # 获取任务状态（确保线程安全）
         with upload_lock:
@@ -178,10 +191,10 @@ def init_routes(app):
             # 检查状态是否有效
             if not status_info or 'status' not in status_info:
                 return jsonify({
-                    'status': '[Error] Invalid task status',
+                    'status': 'error',
                     'error': 'Invalid task status',
                     'message': 'Task exists but status information is invalid'
-                }), 202
+                }), 500
             
             # 返回当前状态
             if status_info['status'] == 'completed':
@@ -190,6 +203,14 @@ def init_routes(app):
                     'result': status_info.get('result', {}),
                     'message': 'Video processing completed'
                 }), 200
+            elif status_info['status'] == 'error':
+                return jsonify({
+                    'status': 'error',
+                    'error': status_info.get('error', 'Video processing failed'),
+                    'message': status_info.get(
+                        'message', 'The server could not process this video.'
+                    )
+                }), 500
             else:
                 return jsonify({
                     'status': 'processing',
