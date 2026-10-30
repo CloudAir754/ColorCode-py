@@ -38,10 +38,11 @@ class TransitionTimeCacheTest(unittest.TestCase):
         PROGRAM_TRANSITION_TIME_PRESET["times"] = None
 
     def make_processor(self, times, ratios, scope=TIME_MAPPING_SCOPE_IMAGE,
-                       enabled=True, matrix=MATRIX):
+                       enabled=True, matrix=MATRIX, material_length_mm=None):
         processor = VideoProcessor(
             use_stored_transition_times=enabled,
             time_mapping_scope=scope,
+            material_length_mm=material_length_mm,
         )
         processor.stage_transitions = {
             stage: stage_data(times[stage], ratios[stage], stage * 10, matrix)
@@ -72,21 +73,25 @@ class TransitionTimeCacheTest(unittest.TestCase):
         )
         return self.run_silently(first)
 
-    def test_initialization_output_contains_only_stage_times_and_differences(self):
+    def test_record_output_contains_stage_times_and_differences(self):
         result, debug = self.initialize_image_preset()
 
         self.assertIn("Cache MISS: using ORIGINAL", debug)
-        self.assertEqual(set(result), {"stages", "time_differences"})
+        self.assertEqual(set(result), {"mode", "stages", "time_differences"})
+        self.assertEqual(result["mode"], "record")
         self.assertNotIn("name", result)
-        self.assertNotIn("stretch", result)
         self.assertEqual(result["stages"], {
-            "RGB": {"time": 0.0, "description": "一阶段RGB"},
-            "RG": {"time": 1.5, "description": "二阶段RG"},
-            "G": {"time": 4.0, "description": "三阶段G"},
+            "T0": {"time": 0.0, "color": "RGB"},
+            "T1": {"time": 1.5, "color": "RG"},
+            "T2": {"time": 2.5, "color": "G"},
         })
-        self.assertEqual(result["time_differences"], {"t1": 1.5, "t2": 2.5, "unit": "s"})
+        self.assertEqual(result["time_differences"], {
+            "delta_t1": 1.5,
+            "delta_t2": 2.5,
+            "unit": "s",
+        })
 
-    def test_image_preset_output_uses_stored_times_and_numbered_name(self):
+    def test_measure_output_uses_stored_times_name_percent_and_speed(self):
         self.initialize_image_preset()
         second = self.make_processor(
             {1: 10.0, 2: 15.0, 3: 20.0},
@@ -101,20 +106,48 @@ class TransitionTimeCacheTest(unittest.TestCase):
 
         self.assertIn("Cache HIT: using STORED", debug)
         self.assertEqual(set(result), {
-            "name", "stretch", "preset_time_differences", "stretch_speed"
+            "mode", "name", "stretch_percent", "time_differences", "speed"
         })
+        self.assertEqual(result["mode"], "measure")
         self.assertEqual(result["name"], "5D code42")
-        self.assertEqual(result["stretch"], {
-            "RGB": "α：90.00%",
-            "RG": "α：115.00%",
-            "G": "α：140.00%",
+        self.assertEqual(result["stretch_percent"], {
+            "alpha0": 90.0,
+            "alpha1": 115.0,
+            "alpha2": 140.0,
         })
-        self.assertEqual(result["preset_time_differences"], {"t1": 1.5, "t2": 2.5, "unit": "s"})
-        self.assertEqual(result["stretch_speed"], {
-            "value": 12.5,
-            "unit": "%/s",
-            "display": "12.50 %/s",
+        self.assertEqual(result["time_differences"], {
+            "delta_t1": 1.5,
+            "delta_t2": 2.5,
+            "unit": "s",
+            "known": True,
         })
+        # v = (1.40 - 0.90) × 50 mm ÷ 4.0 s × 60 = 375.0 mm/min
+        self.assertEqual(result["speed"], {
+            "value": 375.0,
+            "unit": "mm/min",
+            "material_length_mm": 50.0,
+        })
+
+    def test_speed_uses_configured_material_length(self):
+        self.initialize_image_preset()
+        second = self.make_processor(
+            {1: 10.0, 2: 11.0, 3: 12.0},
+            {1: 1.0, 2: 1.2, 3: 1.4},
+            material_length_mm=25.0,
+        )
+
+        result, _ = self.run_silently(second)
+
+        # 落点：10.0、11.5、14.0 s，分别取到 10.0、11.0、12.0 s 的采样。
+        # v = (1.40 - 1.00) × 25 mm ÷ 4.0 s × 60 = 150.0 mm/min
+        self.assertEqual(result["speed"]["value"], 150.0)
+        self.assertEqual(result["speed"]["material_length_mm"], 25.0)
+
+    def test_material_length_must_be_positive(self):
+        with self.assertRaises(ValueError):
+            VideoProcessor(material_length_mm=0)
+        with self.assertRaises(ValueError):
+            VideoProcessor(material_length_mm="not-a-number")
 
     def test_image_binding_keeps_different_matrices_separate(self):
         self.initialize_image_preset()
@@ -126,7 +159,7 @@ class TransitionTimeCacheTest(unittest.TestCase):
 
         result, _ = self.run_silently(different)
 
-        self.assertEqual(set(result), {"stages", "time_differences"})
+        self.assertEqual(set(result), {"mode", "stages", "time_differences"})
         self.assertEqual(len(SAMPLE_TRANSITION_TIME_CACHE), 2)
 
     def test_program_binding_reuses_first_preset_for_a_different_matrix(self):
@@ -149,11 +182,12 @@ class TransitionTimeCacheTest(unittest.TestCase):
         ])
         second_result, debug = self.run_silently(second)
 
-        self.assertEqual(set(first_result), {"stages", "time_differences"})
+        self.assertEqual(set(first_result), {"mode", "stages", "time_differences"})
         self.assertIn("'program' binding", debug)
+        self.assertEqual(second_result["mode"], "measure")
         self.assertIn("name", second_result)
-        self.assertEqual(second_result["preset_time_differences"]["t1"], 1.0)
-        self.assertEqual(second_result["preset_time_differences"]["t2"], 2.0)
+        self.assertEqual(second_result["time_differences"]["delta_t1"], 1.0)
+        self.assertEqual(second_result["time_differences"]["delta_t2"], 2.0)
         self.assertEqual(SAMPLE_TRANSITION_TIME_CACHE, {})
 
     def test_switch_off_uses_original_times_without_caching(self):
@@ -166,7 +200,8 @@ class TransitionTimeCacheTest(unittest.TestCase):
         result, debug = self.run_silently(processor)
 
         self.assertIn("Switch OFF: using ORIGINAL", debug)
-        self.assertEqual(set(result), {"stages", "time_differences"})
+        self.assertEqual(set(result), {"mode", "stages", "time_differences"})
+        self.assertEqual(result["mode"], "record")
         self.assertEqual(SAMPLE_TRANSITION_TIME_CACHE, {})
         self.assertIsNone(PROGRAM_TRANSITION_TIME_PRESET["times"])
 
