@@ -7,6 +7,7 @@ import threading
 # 解决单独运行时模块导入问题
 
 from ColorCodeDetector.ColorCodeDetector import ColorCodeDetector
+from .experiment_config import resolve_material_length_mm
 
 
 # 是否对同一样品复用首次识别到的三阶段变色时间。
@@ -38,10 +39,12 @@ class VideoProcessor:
     STAGE_RED_GONE = 3
 
     def __init__(self, stability_threshold=5, use_stored_transition_times=None,
-                 time_mapping_scope=None):
+                 time_mapping_scope=None, material_length_mm=None):
         """
         初始化视频处理器
         :param stability_threshold: 状态稳定所需的连续帧数
+        :param material_length_mm: 拉伸前的材料长度（mm），None 表示使用
+            experiment_config.PRESET_MATERIAL_LENGTH_MM
         """
         self.stage = self.STAGE_UNINITIALIZED
         self.stage_transitions = {
@@ -84,6 +87,8 @@ class VideoProcessor:
             )
         # 保存每个成功识别帧的轻量数据，用于按已存时间回取拉伸比。
         self.stretch_samples = []
+        # 速度计算使用的材料标距长度（mm）。
+        self.material_length_mm = resolve_material_length_mm(material_length_mm)
 
     def determine_stage(self, result):
         """
@@ -311,7 +316,12 @@ class VideoProcessor:
         )
 
     def get_transition_info(self):
-        """获取阶段转换信息，返回可直接 JSON 序列化的 Images Information。"""
+        """获取阶段转换信息，返回可直接 JSON 序列化的 Images Information。
+
+        返回两种结构：
+        - mode="record"：第一次识别，记录阶段时长 T1/T2 与 ΔT1/ΔT2；
+        - mode="measure"：同一颜色矩阵再次识别，用已存 ΔT 回取拉伸比并计算速度。
+        """
         # 原始信息打印保持不变
         print("="*50)
         print("The original information is as follows:")
@@ -334,8 +344,11 @@ class VideoProcessor:
             again_Succ = self._retry_with_adjusted_parameters(self.STAGE_FULL_INFO)
             
             if again_Succ is False :
-                # 实在救不过来==》直接返回原始数据
-                return self.stage_transitions
+                print("Stage 1 content still not detected after retries.")
+                return {
+                    "mode": "incomplete",
+                    "message": "Stage 1 (RGB) was not detected. Please re-record the video.",
+                }
         
         # 获取第一阶段时间作为基准
         base_time = self.stage_transitions[1]['frame_info']['timestamp']
@@ -353,108 +366,108 @@ class VideoProcessor:
             self.STAGE_BLUE_GONE: "RG",
             self.STAGE_RED_GONE: "G",
         }
-        stage_descriptions = {
-            self.STAGE_FULL_INFO: "一阶段RGB",
-            self.STAGE_BLUE_GONE: "二阶段RG",
-            self.STAGE_RED_GONE: "三阶段G",
-        }
 
+        # 计算三个阶段各自的拉伸比。
+        # 命中已存时间时，用时间点回取当前视频中最近的采样；否则直接用本视频的阶段数据。
         for stage, data in self.stage_transitions.items():
-            can_use_stored_time = time_source == "stored" and stage in transition_times
-            if data is not None or can_use_stored_time:
-                # 命中缓存时，用已存时间找当前视频中最近的拉伸采样。
-                relative_time = (
-                    transition_times[stage]
-                    if stage in transition_times
-                    else round(data['frame_info']['timestamp'] - base_time, 3)
+            relative_time = transition_times.get(stage)
+            selected_sample = None
+            if time_source == "stored" and relative_time is not None:
+                selected_sample = self._sample_at_relative_time(relative_time, base_time)
+            if selected_sample is not None:
+                print(
+                    f"[TransitionTimeCache] Stage {stage}: STORED relative time "
+                    f"{relative_time:.3f}s -> current frame "
+                    f"{selected_sample['frame_number']} at "
+                    f"{selected_sample['timestamp']:.3f}s, stretch ratio "
+                    f"{selected_sample['stretch_ratio']:.3f}."
                 )
-                selected_sample = (
-                    self._sample_at_relative_time(relative_time, base_time)
-                    if time_source == "stored"
-                    else None
-                )
-                if selected_sample is not None:
-                    print(
-                        f"[TransitionTimeCache] Stage {stage}: STORED relative time "
-                        f"{relative_time:.3f}s -> current frame "
-                        f"{selected_sample['frame_number']} at "
-                        f"{selected_sample['timestamp']:.3f}s, stretch ratio "
-                        f"{selected_sample['stretch_ratio']:.3f}."
-                    )
-                if data is None and selected_sample is None:
-                    continue
+                self.ratio[stage] = round(float(selected_sample["stretch_ratio"]), 3)
+            elif data is not None and data.get("stretch_ratio") is not None:
+                self.ratio[stage] = round(float(data["stretch_ratio"]), 3)
 
-                stretch_ratio = round(float(
-                    selected_sample["stretch_ratio"] if selected_sample
-                    else data["stretch_ratio"]
-                ), 3)
-                self.ratio[stage] = stretch_ratio  # 将拉伸比计入字典
-
-        time_differences = self._calculate_time_differences(transition_times)
+        # T1/T2 是相邻阶段之间的时长（不是从 0 开始的绝对时间）：
+        #   T1 = RGB→RG，T2 = RG→G；ΔT1=T1，ΔT2=T2。
+        delta_t1, delta_t2 = self._calculate_stage_durations(transition_times)
+        time_differences = {
+            "delta_t1": delta_t1,
+            "delta_t2": delta_t2,
+            "unit": "s",
+        }
 
         if time_source == "original":
             images_information = {
+                "mode": "record",
                 "stages": {
-                    stage_labels[stage]: {
-                        "time": transition_times.get(stage),
-                        "description": stage_descriptions[stage],
-                    }
-                    for stage in stage_labels
+                    "T0": {"time": 0.0, "color": stage_labels[1]},
+                    "T1": {"time": delta_t1, "color": stage_labels[2]},
+                    "T2": {"time": delta_t2, "color": stage_labels[3]},
                 },
                 "time_differences": time_differences,
             }
         else:
-            stretch_details = {
-                stage_labels[stage]: f"α：{self.ratio[stage] * 100:.2f}%"
-                for stage in stage_labels
-                if self.ratio[stage] is not None
-            }
-            speed = self._calculate_stretch_speed(transition_times)
+            speed = self._calculate_stretch_speed_mm_per_min(delta_t1, delta_t2)
             images_information = {
+                "mode": "measure",
                 "name": name,
-                "stretch": stretch_details,
-                "preset_time_differences": time_differences,
-                "stretch_speed": {
+                "stretch_percent": {
+                    "alpha0": self._ratio_to_percent(self.ratio[1]),
+                    "alpha1": self._ratio_to_percent(self.ratio[2]),
+                    "alpha2": self._ratio_to_percent(self.ratio[3]),
+                },
+                "time_differences": {**time_differences, "known": True},
+                "speed": {
                     "value": speed,
-                    "unit": "%/s",
-                    "display": None if speed is None else f"{speed:.2f} %/s",
+                    "unit": "mm/min",
+                    "material_length_mm": self.material_length_mm,
                 },
             }
 
         print("*"*60)
         print(
             "Images Information "
-            f"({time_source.upper()} time, {self.time_mapping_scope} binding):"
+            f"({time_source.upper()} time, {self.time_mapping_scope} binding, "
+            f"mode={images_information['mode']}):"
         )
         print(images_information)
         print("*"*60)
         return images_information
 
     @staticmethod
-    def _calculate_time_differences(transition_times):
-        """计算一、二阶段和二、三阶段之间的预设时间差。"""
-        if not all(stage in transition_times for stage in (1, 2, 3)):
-            return {"t1": None, "t2": None, "unit": "s"}
-        return {
-            "t1": round(transition_times[2] - transition_times[1], 3),
-            "t2": round(transition_times[3] - transition_times[2], 3),
-            "unit": "s",
-        }
+    def _ratio_to_percent(ratio):
+        """把 1.27 形式的拉伸比转换为 127.0（%）。"""
+        return None if ratio is None else round(ratio * 100, 3)
 
-    def _calculate_stretch_speed(self, transition_times):
+    @staticmethod
+    def _calculate_stage_durations(transition_times):
+        """返回 T1（RGB→RG）和 T2（RG→G）的阶段时长，单位 s。
+
+        按需求确认，T1/T2 表示相邻阶段之间的时长；因此 ΔT1=T1、ΔT2=T2，
+        ΔT1 + ΔT2 即 T0→T2 的总时长。
         """
-        使用首末阶段的应变增量除以预设总时间，单位为 %/s。
+        if not all(stage in transition_times for stage in (1, 2, 3)):
+            return None, None
+        return (
+            round(transition_times[2] - transition_times[1], 3),
+            round(transition_times[3] - transition_times[2], 3),
+        )
 
-        当前识别结果没有实际长度标定，因此不输出 mm/min。
+    def _calculate_stretch_speed_mm_per_min(self, delta_t1, delta_t2):
+        """按拉伸比率变化量和预设材料长度计算平均速度，单位 mm/min。
+
+        v = (α2 - α0) × L0 ÷ (ΔT1 + ΔT2) × 60
         """
         first_ratio = self.ratio[self.STAGE_FULL_INFO]
         last_ratio = self.ratio[self.STAGE_RED_GONE]
         if first_ratio is None or last_ratio is None:
             return None
-        total_time = transition_times.get(3, 0) - transition_times.get(1, 0)
+        if delta_t1 is None or delta_t2 is None:
+            return None
+        total_time = delta_t1 + delta_t2
         if total_time <= 0:
             return None
-        return round((last_ratio - first_ratio) * 100 / total_time, 3)
+        elongation_mm = (last_ratio - first_ratio) * self.material_length_mm
+        return round(elongation_mm / total_time * 60, 3)
 
     def _value_radio(self):
         health_judeg = ""
@@ -502,10 +515,12 @@ class VideoProcessor:
         name_index = int(binary_str, 2)  # 二进制转十进制（0-63）
         return f"5D code{name_index + 1:02d}"
 
-def process_video(video_path, use_stored_transition_times=None, time_mapping_scope=None):
+def process_video(video_path, use_stored_transition_times=None,
+                  time_mapping_scope=None, material_length_mm=None):
     """
     处理视频的主函数（被route文件调用）
     :param video_path: 视频文件路径
+    :param material_length_mm: 拉伸前材料长度（mm），None 使用预设值
     :return: 处理结果字段video_info,原始视频长度lenth_time
     """
     
@@ -545,6 +560,7 @@ def process_video(video_path, use_stored_transition_times=None, time_mapping_sco
     processor = VideoProcessor(
         use_stored_transition_times=use_stored_transition_times,
         time_mapping_scope=time_mapping_scope,
+        material_length_mm=material_length_mm,
     )  # 创建处理器实例
 
     processor.fps = fps # 传入fps数据
